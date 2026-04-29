@@ -222,3 +222,58 @@ input, textarea {
   font-size: 12px;
   padding: 5px 10px;
 }
+
+/* 🔶 PROFILE */
+.profile-card {
+  max-width: 800px;
+  margin: auto;
+}
+
+.profile-title {
+  margin-bottom: 20px;
+}
+
+/* LAYOUT */
+.profile-container {
+  display: flex;
+  gap: 30px;
+}
+
+/* LEFT */
+.profile-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  background: #eee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+/* RIGHT */
+.profile-right {
+  flex: 1;
+}
+
+.profile-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.profile-group label {
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.profile-actions {
+  margin-top: 15px;
+}

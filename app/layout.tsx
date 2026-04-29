@@ -38,7 +38,8 @@ export default function RootLayout({ children }: any) {
                 <FileText size={18} /> My applications
               </Link>
 
-              <Link href="#">
+              {/* ✅ FIX ICI */}
+              <Link href="/profile" className={pathname === "/profile" ? "active" : ""}>
                 <User size={18} /> Profile
               </Link>
 
