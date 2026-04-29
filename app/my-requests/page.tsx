@@ -45,13 +45,19 @@ export default function MyRequests() {
             <tr key={r.id}>
               <td>{r.dog_id}</td>
               <td>{r.date}</td>
-              <td>{r.time}</td>
+              <td>{r.start_time} - {r.end_time}</td>
               <td>{r.address}</td>
               <td>{r.service_type}</td>
 
-              {/* STATUS (frontend only) */}
+              {/* ✅ STATUS RÉEL */}
               <td>
-                <span className="status-open">Open</span>
+                <span
+                  className={`status ${
+                    r.status === "open" ? "status-open" : ""
+                  }`}
+                >
+                  {r.status}
+                </span>
               </td>
 
               <td style={{ display: "flex", gap: "6px" }}>
@@ -92,14 +98,13 @@ export default function MyRequests() {
           <h3>Request Details</h3>
 
           <p><b>Dog ID:</b> {selected.dog_id}</p>
-          <p><b>Address:</b> {selected.address}</p>
           <p><b>Date:</b> {selected.date}</p>
-          <p><b>Time:</b> {selected.time}</p>
+          <p><b>Time:</b> {selected.start_time} - {selected.end_time}</p>
+          <p><b>Address:</b> {selected.address}</p>
           <p><b>Service:</b> {selected.service_type}</p>
+          <p><b>Status:</b> {selected.status}</p>
 
-          <button onClick={() => setSelected(null)}>
-            Close
-          </button>
+          <button onClick={() => setSelected(null)}>Close</button>
         </div>
       )}
     </div>

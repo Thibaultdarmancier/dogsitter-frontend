@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { updateRequest } from "@/lib/api";
+import { getRequest, updateRequest } from "@/lib/api";
 
 export default function EditRequest() {
   const { id } = useParams();
@@ -11,40 +11,42 @@ export default function EditRequest() {
   const [form, setForm] = useState<any>({
     dog_id: "",
     user_id: "",
-    service_id: "",
     address: "",
     date: "",
-    time: "",
+    start_time: "",
+    end_time: "",
     service_type: "",
+    status: "",
+    assigned_dogsitter_id: null,
   });
 
   const [preview, setPreview] = useState<string | null>(null);
 
-  // 🔥 load request
+  // 🔥 LOAD DATA
   useEffect(() => {
-    fetch(`http://localhost:3000/request/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setForm(data);
-      });
+    getRequest(Number(id)).then((data) => {
+      setForm(data);
+    });
   }, [id]);
 
-  // 📷 image upload (front only)
+  // 📷 IMAGE
   const handleImage = (e: any) => {
     const file = e.target.files[0];
     setPreview(URL.createObjectURL(file));
   };
 
-  // 💾 save
+  // 💾 SAVE
   const handleSave = async () => {
     await updateRequest(Number(id), {
       dog_id: Number(form.dog_id),
       user_id: Number(form.user_id),
-      service_id: Number(form.service_id),
       address: form.address,
       date: form.date,
-      time: form.time,
+      start_time: form.start_time,
+      end_time: form.end_time,
       service_type: form.service_type,
+      status: form.status,
+      assigned_dogsitter_id: form.assigned_dogsitter_id,
     });
 
     alert("Request updated!");
@@ -60,15 +62,10 @@ export default function EditRequest() {
         {/* IMAGE */}
         <div className="form-group form-full">
           <label className="form-label">Select photo of the dog</label>
-
-          <div className="upload-box">
-            <input type="file" onChange={handleImage} />
-          </div>
-
+          <input type="file" onChange={handleImage} />
           {preview && <img src={preview} className="preview-img" />}
         </div>
 
-        {/* FORM */}
         <div className="form-grid">
 
           <div className="form-group form-full">
@@ -77,26 +74,6 @@ export default function EditRequest() {
               value={form.dog_id}
               onChange={(e) =>
                 setForm({ ...form, dog_id: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Service ID</label>
-            <input
-              value={form.service_id}
-              onChange={(e) =>
-                setForm({ ...form, service_id: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">User ID</label>
-            <input
-              value={form.user_id}
-              onChange={(e) =>
-                setForm({ ...form, user_id: e.target.value })
               }
             />
           </div>
@@ -112,11 +89,21 @@ export default function EditRequest() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Time</label>
+            <label className="form-label">Start time</label>
             <input
-              value={form.time}
+              value={form.start_time}
               onChange={(e) =>
-                setForm({ ...form, time: e.target.value })
+                setForm({ ...form, start_time: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">End time</label>
+            <input
+              value={form.end_time}
+              onChange={(e) =>
+                setForm({ ...form, end_time: e.target.value })
               }
             />
           </div>
@@ -141,9 +128,23 @@ export default function EditRequest() {
             />
           </div>
 
+          {/* ✅ STATUS MODIFIABLE */}
+          <div className="form-group form-full">
+            <label className="form-label">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) =>
+                setForm({ ...form, status: e.target.value })
+              }
+            >
+              <option value="open">Open</option>
+              <option value="accepted">Accepted</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
         </div>
 
-        {/* BUTTONS */}
         <div style={{ marginTop: "15px" }}>
           <button className="btn-green" onClick={handleSave}>
             Save changes
