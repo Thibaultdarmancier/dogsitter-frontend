@@ -1,37 +1,50 @@
+"use client";
+
 import "./globals.css";
 import Link from "next/link";
-
+import { usePathname } from "next/navigation";
+import { Home, ClipboardList, PlusCircle, User, LogOut } from "lucide-react";
 export default function RootLayout({ children }: any) {
-  const role = "user"; // 🔥 change "user" → "dogsitter" pour tester
+  const pathname = usePathname();
 
   return (
     <html>
       <body>
         <div className="layout">
-          <div className="sidebar">
-            <h2>Dogsitter</h2>
 
-            <Link href="/">Dashboard</Link>
+          {/* 🔶 TOP BAR */}
+          <div className="topbar">Dogsitter</div>
 
-            {role === "user" && (
-              <>
-                <Link href="/my-requests">My requests</Link>
-                <Link href="/create-request">Create request</Link>
-              </>
-            )}
+          <div className="main">
 
-            {role === "dogsitter" && (
-              <>
-                <Link href="/available-requests">Available requests</Link>
-                <Link href="/applications">My applications</Link>
-              </>
-            )}
+                <div className="sidebar">
+                  <h3>USER MENU</h3>
 
-            <Link href="#">Profile</Link>
-            <Link href="#">Logout</Link>
+                  <Link href="/" className={pathname === "/" ? "active" : ""}>
+                    <Home size={18} /> Dashboard
+                  </Link>
+
+                  <Link href="/my-requests" className={pathname === "/my-requests" ? "active" : ""}>
+                    <ClipboardList size={18} /> My requests
+                  </Link>
+
+                  <Link href="/create-request" className={pathname === "/create-request" ? "active" : ""}>
+                    <PlusCircle size={18} /> Create request
+                  </Link>
+
+                  <Link href="#">
+                    <User size={18} /> Profile
+                  </Link>
+
+                  <Link href="#">
+                    <LogOut size={18} /> Logout
+                  </Link>
+                </div>
+
+            {/* 🔶 PAGE */}
+            <div className="content">{children}</div>
+
           </div>
-
-          <div className="content">{children}</div>
         </div>
       </body>
     </html>
