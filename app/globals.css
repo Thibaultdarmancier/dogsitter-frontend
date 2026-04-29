@@ -54,3 +54,80 @@ button {
   background: #ef4444;
   color: white;
 }
+
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.form-card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 600px;
+  border: 1px solid #ddd;
+}
+
+.form-title {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-full {
+  grid-column: span 2;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-green {
+  background: #22c55e;
+  color: white;
+}
+
+.btn-gray {
+  background: #ccc;
+}
+
+.preview-img {
+  width: 200px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+.form-label {
+  font-size: 14px;
+  margin-top: 8px;
+  display: block;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-full {
+  grid-column: span 2;
+}
