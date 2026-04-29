@@ -312,3 +312,8 @@ input, textarea {
   margin-bottom: 4px;
   color: #444;
 }
+/* pending badge */
+.status-pending {
+  background: #facc15;
+  color: black;
+}
