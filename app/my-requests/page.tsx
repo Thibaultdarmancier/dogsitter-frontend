@@ -1,22 +1,28 @@
-"use client";
-import { useEffect, useState } from "react";
-import { API } from "../../lib/api";
+import Link from "next/link";
 
 export default function MyRequests() {
-  const [data, setData] = useState<any[]>([]);
-
-  useEffect(() => {
-    API.get("/request").then((res) => setData(res.data));
-  }, []);
-
   return (
     <div className="card">
-      <h2>My requests</h2>
 
-      <table>
+      {/* HEADER */}
+      <div className="header-row">
+        <div>
+          <h2>My requests</h2>
+          <p className="subtitle">List of your dog walking requests</p>
+        </div>
+
+        <Link href="/create-request">
+          <button className="btn-green">
+            Create request
+          </button>
+        </Link>
+      </div>
+
+      {/* TABLE */}
+      <table className="table">
         <thead>
           <tr>
-            <th>Dog</th>
+            <th>Dog name</th>
             <th>Date</th>
             <th>Time</th>
             <th>Location</th>
@@ -26,21 +32,10 @@ export default function MyRequests() {
         </thead>
 
         <tbody>
-          {data.map((r) => (
-            <tr key={r.id}>
-              <td>{r.dogName}</td>
-              <td>{r.date}</td>
-              <td>{r.timeStart}</td>
-              <td>{r.location}</td>
-              <td>Open</td>
-              <td>
-                <button className="btn-green">Edit</button>
-                <button className="btn-red">Delete</button>
-              </td>
-            </tr>
-          ))}
+          {/* vide pour l’instant */}
         </tbody>
       </table>
+
     </div>
   );
 }
