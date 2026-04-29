@@ -31,6 +31,11 @@ export function getUser() {
   return JSON.parse(localStorage.getItem("user") || "null");
 }
 
+export function getToken() {
+  const user = getUser();
+  return user?.token || null;
+}
+
 export function logout() {
   localStorage.removeItem("user");
 }

@@ -1,44 +1,59 @@
+import { getToken } from "./auth";
+
 const API_URL = "http://localhost:3000";
 
-// ===== REQUEST =====
+function authHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${getToken()}`,
+  };
+}
 
-export async function getRequests() {
-  const res = await fetch(`${API_URL}/request`);
+// ================= REQUEST =================
+
+export async function createRequest(data: any) {
+  const res = await fetch(`${API_URL}/request/create`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+
   return res.json();
 }
 
 export async function getOpenRequests() {
-  const res = await fetch(`${API_URL}/request/open`);
+  const res = await fetch(`${API_URL}/request/open`, {
+    headers: authHeaders(),
+  });
+
   return res.json();
 }
 
-export async function getRequest(id: number) {
-  const res = await fetch(`${API_URL}/request/${id}`);
+export async function getRequests() {
+  const res = await fetch(`${API_URL}/request`, {
+    headers: authHeaders(),
+  });
+
   return res.json();
 }
 
-export async function createRequest(data: any) {
-  return fetch(`${API_URL}/request/create`, {
+// ================= APPLY =================
+
+export async function createApply(data: any) {
+  const res = await fetch(`${API_URL}/apply/create`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: authHeaders(),
     body: JSON.stringify(data),
   });
+
+  return res.json();
 }
 
-export async function updateRequest(id: number, data: any) {
-  return fetch(`${API_URL}/request/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deleteRequest(id: number) {
-  return fetch(`${API_URL}/request/${id}`, {
+export async function deleteApply(id: number) {
+  const res = await fetch(`${API_URL}/apply/${id}`, {
     method: "DELETE",
+    headers: authHeaders(),
   });
+
+  return res.json();
 }

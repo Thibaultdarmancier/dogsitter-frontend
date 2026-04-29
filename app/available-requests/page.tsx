@@ -1,19 +1,53 @@
 "use client";
-import { API } from "../../lib/api";
+import { getOpenRequests, createApply } from "@/lib/api";
+import { useEffect, useState } from "react";
 
-export default function ApplyPage() {
-  const apply = async () => {
-    await API.post("/apply", { requestId: 1 });
+export default function OpenRequestsPage() {
+  const [requests, setRequests] = useState<any[]>([]);
+
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const loadRequests = async () => {
+    const data = await getOpenRequests();
+    setRequests(data);
+  };
+
+  const applyNow = async (requestId: number) => {
+    const res = await createApply({
+      request_id: requestId,
+    });
+
+    alert(res.message || "Applied!");
+    loadRequests();
   };
 
   return (
-    <div className="card">
-      <h2>Request details</h2>
+    <div className="form-wrapper">
+      <div className="form-card">
+        <h2>Open Requests</h2>
 
-      <button className="btn-green" onClick={apply}>
-        Apply to this request
-      </button>
-      <button>Back</button>
+        {requests.map((req) => (
+          <div key={req.id} className="card" style={{ marginBottom: "20px" }}>
+            {req.dog_image && (
+              <img src={req.dog_image} className="preview-img" />
+            )}
+
+            <h3>{req.dog_name}</h3>
+            <p>Age: {req.dog_age}</p>
+            <p>Race: {req.dog_race}</p>
+            <p>Address: {req.address}</p>
+            <p>Date: {req.date}</p>
+            <p>Time: {req.start_time} - {req.end_time}</p>
+            <p>Service: {req.service_type}</p>
+
+            <button className="btn-green" onClick={() => applyNow(req.id)}>
+              Apply
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
