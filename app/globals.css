@@ -277,3 +277,38 @@ input, textarea {
 .profile-actions {
   margin-top: 15px;
 }
+/* 🔥 EDIT PAGE SPECIFIQUE */
+
+/* upload image */
+.upload-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-btn {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* image preview */
+.preview-img {
+  width: 220px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* form spacing */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #444;
+}
