@@ -3,7 +3,8 @@
 import "./globals.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ClipboardList, PlusCircle, User, LogOut } from "lucide-react";
+import { Home, ClipboardList, PlusCircle, User, LogOut, FileText } from "lucide-react";
+
 export default function RootLayout({ children }: any) {
   const pathname = usePathname();
 
@@ -17,32 +18,39 @@ export default function RootLayout({ children }: any) {
 
           <div className="main">
 
-                <div className="sidebar">
-                  <h3>USER MENU</h3>
+            {/* 🔶 SIDEBAR */}
+            <div className="sidebar">
+              <h3>USER MENU</h3>
 
-                  <Link href="/" className={pathname === "/" ? "active" : ""}>
-                    <Home size={18} /> Dashboard
-                  </Link>
+              <Link href="/" className={pathname === "/" ? "active" : ""}>
+                <Home size={18} /> Dashboard
+              </Link>
 
-                  <Link href="/my-requests" className={pathname === "/my-requests" ? "active" : ""}>
-                    <ClipboardList size={18} /> My requests
-                  </Link>
+              <Link href="/my-requests" className={pathname === "/my-requests" ? "active" : ""}>
+                <ClipboardList size={18} /> My requests
+              </Link>
 
-                  <Link href="/create-request" className={pathname === "/create-request" ? "active" : ""}>
-                    <PlusCircle size={18} /> Create request
-                  </Link>
+              <Link href="/create-request" className={pathname === "/create-request" ? "active" : ""}>
+                <PlusCircle size={18} /> Create request
+              </Link>
 
-                  <Link href="#">
-                    <User size={18} /> Profile
-                  </Link>
+              <Link href="/applications" className={pathname === "/applications" ? "active" : ""}>
+                <FileText size={18} /> My applications
+              </Link>
 
-                  <Link href="#">
-                    <LogOut size={18} /> Logout
-                  </Link>
-                </div>
+              <Link href="#">
+                <User size={18} /> Profile
+              </Link>
+
+              <Link href="#">
+                <LogOut size={18} /> Logout
+              </Link>
+            </div>
 
             {/* 🔶 PAGE */}
-            <div className="content">{children}</div>
+            <div className="content">
+              {children}
+            </div>
 
           </div>
         </div>
