@@ -10,7 +10,6 @@ export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: "owner",
   });
 
   const router = useRouter();
@@ -39,7 +38,7 @@ export default function Login() {
         id: profile.id,
         name: profile.name,
         email: profile.email,
-        role: form.role, // 🔥 backend ne renvoie pas le role ici
+        role: profile.role,
         token: res.access_token,
       };
 
@@ -78,17 +77,6 @@ export default function Login() {
             type="password"
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
-        </div>
-
-        {/* ROLE */}
-        <div className="form-group">
-          <label>Login as</label>
-          <select
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          >
-            <option value="owner">User</option>
-            <option value="dogsitter">Dogsitter</option>
-          </select>
         </div>
 
         <button className="btn-green" onClick={handleLogin}>
