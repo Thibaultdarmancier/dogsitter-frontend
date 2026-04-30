@@ -25,10 +25,20 @@ export default function EditRequest() {
 
   // 🔥 LOAD DATA
   useEffect(() => {
-    getRequest(Number(id)).then((data) => {
+  if (!id) return;
+
+  const numericId = Number(id);
+
+  if (isNaN(numericId)) return;
+
+  getRequest(numericId).then((data) => {
+    console.log("EDIT REQUEST DATA =", data);
+
+    if (data?.id) {
       setForm(data);
-    });
-  }, [id]);
+    }
+  });
+}, [id]);
 
   // 📷 IMAGE UPLOAD
   const handleImage = (e: any) => {
@@ -49,17 +59,24 @@ export default function EditRequest() {
 
   // 💾 SAVE
   const handleSave = async () => {
-    try {
-      await updateRequest(Number(id), form);
+  try {
+    const numericId = Number(id);
 
-      alert("Request updated!");
-      router.push("/my-requests");
-
-    } catch (err) {
-      console.error(err);
-      alert("Error updating request");
+    if (isNaN(numericId)) {
+      alert("Invalid request id");
+      return;
     }
-  };
+
+    await updateRequest(numericId, form);
+
+    alert("Request updated!");
+    router.push("/my-requests");
+
+  } catch (err) {
+    console.error(err);
+    alert("Error updating request");
+  }
+};
 
   return (
     <div className="form-wrapper">
