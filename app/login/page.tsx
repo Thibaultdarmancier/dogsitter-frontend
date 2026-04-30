@@ -17,14 +17,15 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const res = await loginUser(form);
+
       console.log("LOGIN RESPONSE =", res);
 
       if (!res.access_token) {
-        alert(res.message || "Login failed");
+        alert("Login failed");
         return;
       }
 
-      // 🔥 récupérer profil complet (avec role)
+      // 🔥 GET PROFILE AVEC ROLE
       const profileRes = await fetch(`${API_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${res.access_token}`,
@@ -32,17 +33,23 @@ export default function Login() {
       });
 
       const profile = await profileRes.json();
+
       console.log("PROFILE =", profile);
 
       const user = {
         id: profile.id,
-        name: profile.name,
+        name: profile.name || profile.username,
         email: profile.email,
-        role: profile.role, // ✅ FIX IMPORTANT
+        role: profile.role, // ✅ vrai rôle backend
         token: res.access_token,
       };
 
+      console.log("USER STORED =", user);
+
       setUser(user);
+
+      // 🔥 IMPORTANT : force update du layout
+      window.dispatchEvent(new Event("storage"));
 
       // 🔁 REDIRECTION
       if (user.role === "dogsitter") {

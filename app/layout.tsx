@@ -22,8 +22,20 @@ export default function RootLayout({ children }: any) {
   const [user, setUserState] = useState<any>(null);
 
   useEffect(() => {
-    const u = getUser();
-    setUserState(u);
+    const updateUser = () => {
+      const u = getUser();
+      setUserState(u);
+      console.log("LAYOUT USER =", u);
+    };
+
+    updateUser();
+
+    // 🔥 écoute les changements après login
+    window.addEventListener("storage", updateUser);
+
+    return () => {
+      window.removeEventListener("storage", updateUser);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -37,29 +49,34 @@ export default function RootLayout({ children }: any) {
       <body>
         <div className="layout">
 
+          {/* 🔶 TOP BAR */}
           <div className="topbar">Dogsitter</div>
 
           <div className="main">
 
+            {/* 🔶 SIDEBAR */}
             <div className="sidebar">
               <h3>MENU</h3>
 
+              {/* ALWAYS */}
               <Link href="/" className={pathname === "/" ? "active" : ""}>
                 <Home size={18} /> Dashboard
               </Link>
 
+              {/* NOT CONNECTED */}
               {!user && (
                 <>
-                  <Link href="/login" className={pathname === "/login" ? "active" : ""}>
+                  <Link href="/login">
                     <LogIn size={18} /> Login
                   </Link>
 
-                  <Link href="/signup" className={pathname === "/signup" ? "active" : ""}>
+                  <Link href="/signup">
                     <User size={18} /> Sign up
                   </Link>
                 </>
               )}
 
+              {/* OWNER */}
               {user?.role === "owner" && (
                 <>
                   <Link href="/my-requests">
@@ -72,25 +89,37 @@ export default function RootLayout({ children }: any) {
                 </>
               )}
 
+              {/* DOGSITTER */}
               {user?.role === "dogsitter" && (
                 <Link href="/applications">
                   <FileText size={18} /> Applications
                 </Link>
               )}
 
+              {/* CONNECTED */}
               {user && (
                 <>
                   <Link href="/profile">
                     <User size={18} /> Profile
                   </Link>
 
-                  <button onClick={handleLogout}>
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "10px",
+                      textAlign: "left",
+                    }}
+                  >
                     <LogOut size={18} /> Logout
                   </button>
                 </>
               )}
             </div>
 
+            {/* PAGE */}
             <div className="content">{children}</div>
 
           </div>

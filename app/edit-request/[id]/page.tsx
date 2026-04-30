@@ -18,7 +18,7 @@ export default function EditRequest() {
     start_time: "",
     end_time: "",
     service_type: "",
-    status: "",
+    status: "", // 👈 affiché mais pas modifiable
   });
 
   const [preview, setPreview] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export default function EditRequest() {
   });
 }, [id]);
 
-  // 📷 IMAGE UPLOAD
+  // 📷 IMAGE
   const handleImage = (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -59,8 +59,24 @@ export default function EditRequest() {
 
   // 💾 SAVE
   const handleSave = async () => {
+<<<<<<< HEAD
   try {
     const numericId = Number(id);
+=======
+    try {
+      await updateRequest(Number(id), {
+        dog_name: form.dog_name,
+        dog_age: form.dog_age,
+        dog_race: form.dog_race,
+        dog_image: form.dog_image,
+        address: form.address,
+        date: form.date,
+        start_time: form.start_time,
+        end_time: form.end_time,
+        service_type: form.service_type,
+        // ❌ PAS DE status ici
+      });
+>>>>>>> 0920ee8bf4ba6a3be982a9b836444c7ba35d4c14
 
     if (isNaN(numericId)) {
       alert("Invalid request id");
@@ -90,7 +106,6 @@ export default function EditRequest() {
 
           <input type="file" onChange={handleImage} />
 
-          {/* 🔥 IMAGE DISPLAY */}
           {(preview || form.dog_image) && (
             <img
               src={preview || form.dog_image}
@@ -105,7 +120,7 @@ export default function EditRequest() {
           <div className="form-group form-full">
             <label className="form-label">Dog name</label>
             <input
-              value={form.dog_name}
+              value={form.dog_name || ""}
               onChange={(e) =>
                 setForm({ ...form, dog_name: e.target.value })
               }
@@ -116,7 +131,7 @@ export default function EditRequest() {
           <div className="form-group">
             <label className="form-label">Dog age</label>
             <input
-              value={form.dog_age}
+              value={form.dog_age || ""}
               onChange={(e) =>
                 setForm({ ...form, dog_age: e.target.value })
               }
@@ -127,7 +142,7 @@ export default function EditRequest() {
           <div className="form-group">
             <label className="form-label">Dog race</label>
             <input
-              value={form.dog_race}
+              value={form.dog_race || ""}
               onChange={(e) =>
                 setForm({ ...form, dog_race: e.target.value })
               }
@@ -138,29 +153,32 @@ export default function EditRequest() {
           <div className="form-group form-full">
             <label className="form-label">Walking date</label>
             <input
-              value={form.date}
+              type="date"
+              value={form.date || ""}
               onChange={(e) =>
                 setForm({ ...form, date: e.target.value })
               }
             />
           </div>
 
-          {/* START */}
+          {/* START TIME */}
           <div className="form-group">
             <label className="form-label">Start time</label>
             <input
-              value={form.start_time}
+              type="time"
+              value={form.start_time || ""}
               onChange={(e) =>
                 setForm({ ...form, start_time: e.target.value })
               }
             />
           </div>
 
-          {/* END */}
+          {/* END TIME */}
           <div className="form-group">
             <label className="form-label">End time</label>
             <input
-              value={form.end_time}
+              type="time"
+              value={form.end_time || ""}
               onChange={(e) =>
                 setForm({ ...form, end_time: e.target.value })
               }
@@ -171,7 +189,7 @@ export default function EditRequest() {
           <div className="form-group form-full">
             <label className="form-label">Location</label>
             <input
-              value={form.address}
+              value={form.address || ""}
               onChange={(e) =>
                 setForm({ ...form, address: e.target.value })
               }
@@ -182,26 +200,21 @@ export default function EditRequest() {
           <div className="form-group form-full">
             <label className="form-label">Service Type</label>
             <input
-              value={form.service_type}
+              value={form.service_type || ""}
               onChange={(e) =>
                 setForm({ ...form, service_type: e.target.value })
               }
             />
           </div>
 
-          {/* STATUS */}
+          {/* STATUS (READ ONLY) */}
           <div className="form-group form-full">
             <label className="form-label">Status</label>
-            <select
-              value={form.status}
-              onChange={(e) =>
-                setForm({ ...form, status: e.target.value })
-              }
-            >
-              <option value="open">Open</option>
-              <option value="accepted">Accepted</option>
-              <option value="completed">Completed</option>
-            </select>
+            <input
+              value={form.status || ""}
+              readOnly
+              style={{ background: "#eee" }}
+            />
           </div>
 
         </div>
