@@ -5,6 +5,10 @@ import { createRequest } from "@/lib/api";
 
 export default function CreateRequest() {
   const [form, setForm] = useState<any>({
+    dog_name: "",
+    dog_age: "",
+    dog_race: "",
+    dog_image: "",
     date: "",
     start_time: "",
     end_time: "",
@@ -12,45 +16,67 @@ export default function CreateRequest() {
     service_type: "walk",
   });
 
+  const [preview, setPreview] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
 
-  const handleSubmit = () => setConfirm(true);
+  // 📷 IMAGE
+  const handleImage = (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const handleConfirm = async () => {
-    const payload = {
-      dog_id: 1, // ⚠️ temporaire
-      user_id: 1, // ⚠️ temporaire
-      address: form.address,
-      date: form.date,
-      start_time: form.start_time,
-      end_time: form.end_time,
-      status: "open",
-      service_type: form.service_type,
-      assigned_dogsitter_id: null,
+    setPreview(URL.createObjectURL(file));
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm((prev: any) => ({
+        ...prev,
+        dog_image: reader.result,
+      }));
     };
-
-    console.log("SENDING:", payload);
-
-    const res = await createRequest(payload);
-
-    if (res.ok) {
-      alert("Request created!");
-    } else {
-      alert("Error creating request");
-    }
-
-    setConfirm(false);
+    reader.readAsDataURL(file);
   };
 
+  // 🟢 SUBMIT
+  const handleSubmit = () => {
+    setConfirm(true);
+  };
+
+  // ✅ CONFIRM → BACKEND
+  const handleConfirm = async () => {
+    try {
+      const res = await createRequest(form);
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("Backend error:", err);
+        alert("Error creating request");
+        return;
+      }
+
+      alert("Request created!");
+      setConfirm(false);
+
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+    }
+  };
+
+  // ===== CONFIRM SCREEN =====
   if (confirm) {
     return (
       <div className="form-wrapper">
         <div className="form-card">
           <h2>Confirm Request</h2>
 
-          <p>Date: {form.date}</p>
-          <p>Time: {form.start_time} - {form.end_time}</p>
-          <p>Location: {form.address}</p>
+          {preview && <img src={preview} className="preview-img" />}
+
+          <p><b>Dog:</b> {form.dog_name}</p>
+          <p><b>Age:</b> {form.dog_age}</p>
+          <p><b>Race:</b> {form.dog_race}</p>
+          <p><b>Date:</b> {form.date}</p>
+          <p><b>Time:</b> {form.start_time} - {form.end_time}</p>
+          <p><b>Location:</b> {form.address}</p>
 
           <button className="btn-green" onClick={handleConfirm}>
             Confirm
@@ -64,61 +90,70 @@ export default function CreateRequest() {
     );
   }
 
+  // ===== FORM =====
   return (
     <div className="form-wrapper">
       <div className="form-card">
-
         <h2>Create a new request</h2>
 
-        <div className="form-group">
-          <label>Date</label>
-          <input
-            onChange={(e) =>
-              setForm({ ...form, date: e.target.value })
-            }
-          />
-        </div>
+        {/* IMAGE */}
+        <input type="file" onChange={handleImage} />
+        {preview && <img src={preview} className="preview-img" />}
 
-        <div className="form-group">
-          <label>Start time</label>
-          <input
-            onChange={(e) =>
-              setForm({ ...form, start_time: e.target.value })
-            }
-          />
-        </div>
+        {/* DOG */}
+        <input
+          placeholder="Dog name"
+          onChange={(e) =>
+            setForm({ ...form, dog_name: e.target.value })
+          }
+        />
 
-        <div className="form-group">
-          <label>End time</label>
-          <input
-            onChange={(e) =>
-              setForm({ ...form, end_time: e.target.value })
-            }
-          />
-        </div>
+        <input
+          placeholder="Dog age"
+          onChange={(e) =>
+            setForm({ ...form, dog_age: e.target.value })
+          }
+        />
 
-        <div className="form-group">
-          <label>Location</label>
-          <input
-            onChange={(e) =>
-              setForm({ ...form, address: e.target.value })
-            }
-          />
-        </div>
+        <input
+          placeholder="Dog race"
+          onChange={(e) =>
+            setForm({ ...form, dog_race: e.target.value })
+          }
+        />
 
-        <div className="form-group">
-          <label>Service type</label>
-          <input
-            onChange={(e) =>
-              setForm({ ...form, service_type: e.target.value })
-            }
-          />
-        </div>
+        {/* REQUEST */}
+        <input
+          placeholder="Date"
+          onChange={(e) =>
+            setForm({ ...form, date: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Start time"
+          onChange={(e) =>
+            setForm({ ...form, start_time: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="End time"
+          onChange={(e) =>
+            setForm({ ...form, end_time: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Address"
+          onChange={(e) =>
+            setForm({ ...form, address: e.target.value })
+          }
+        />
 
         <button className="btn-green" onClick={handleSubmit}>
           Submit request
         </button>
-
       </div>
     </div>
   );
