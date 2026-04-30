@@ -13,13 +13,15 @@ export async function loginUser(data: any) {
 }
 
 export async function registerUser(data: any) {
-  return fetch(`${API_URL}/auth/regist`, {
+  const res = await fetch(`${API_URL}/auth/regist`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
+
+  return res.json();
 }
 
 // ===== LOCAL STORAGE =====

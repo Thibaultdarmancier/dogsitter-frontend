@@ -1,38 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import { loginUser, setUser} from "@/lib/auth";
+import { loginUser, setUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
+    role: "owner",
   });
 
   const router = useRouter();
 
   const handleLogin = async () => {
-    const res = await loginUser(form);
-  
-    if (res.access_token) {
-      const user = {
-        id: res.user.id,
-        name: res.user.name,
-        email: res.user.email,
-        role: res.user.role,
-        token: res.access_token,
-      };
-  
-      setUser(user);
-  
-      if (user.role === "dogsitter") {
-        router.push("/open-requests");
+    try {
+      const res = await loginUser(form);
+      console.log("LOGIN RESPONSE =", res);
+
+      if (res.access_token) {
+        const user = {
+          id: res.user.id,
+          name: res.user.name,
+          email: res.user.email,
+          role: res.user.role,
+          token: res.access_token,
+        };
+
+        setUser(user);
+
+        if (user.role === "dogsitter") {
+          router.push("/open-requests");
+        } else {
+          router.push("/my-requests");
+        }
       } else {
-        router.push("/my-requests");
+        alert(res.message || "Login failed");
       }
-    } else {
-      alert("Login failed");
+    } catch (err) {
+      console.log("LOGIN ERROR =", err);
+      alert("Connection error");
     }
   };
 
@@ -43,7 +50,9 @@ export default function Login() {
 
         <div className="form-group">
           <label>Email</label>
-          <input onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <input
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
         </div>
 
         <div className="form-group">

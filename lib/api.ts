@@ -1,59 +1,93 @@
-import { getToken } from "./auth";
-
 const API_URL = "http://localhost:3000";
 
-function authHeaders() {
-  return {
+function getToken() {
+  if (typeof window === "undefined") return null;
+
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  return user?.token || null;
+}
+
+async function apiFetch(endpoint: string, options: RequestInit = {}) {
+  const token = getToken();
+
+  const headers: any = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${getToken()}`,
+    ...(options.headers || {}),
   };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  return res.json();
 }
 
-// ================= REQUEST =================
+//
+// ===== REQUEST =====
+//
 
-export async function createRequest(data: any) {
-  const res = await fetch(`${API_URL}/request/create`, {
+export function getRequests() {
+  return apiFetch("/request");
+}
+
+export function getOpenRequests() {
+  return apiFetch("/request/open");
+}
+
+export function getRequest(id: number) {
+  return apiFetch(`/request/${id}`);
+}
+
+export function createRequest(data: any) {
+  return apiFetch("/request/create", {
     method: "POST",
-    headers: authHeaders(),
     body: JSON.stringify(data),
   });
-
-  return res.json();
 }
 
-export async function getOpenRequests() {
-  const res = await fetch(`${API_URL}/request/open`, {
-    headers: authHeaders(),
-  });
-
-  return res.json();
-}
-
-export async function getRequests() {
-  const res = await fetch(`${API_URL}/request`, {
-    headers: authHeaders(),
-  });
-
-  return res.json();
-}
-
-// ================= APPLY =================
-
-export async function createApply(data: any) {
-  const res = await fetch(`${API_URL}/apply/create`, {
-    method: "POST",
-    headers: authHeaders(),
+export function updateRequest(id: number, data: any) {
+  return apiFetch(`/request/${id}`, {
+    method: "PATCH",
     body: JSON.stringify(data),
   });
-
-  return res.json();
 }
 
-export async function deleteApply(id: number) {
-  const res = await fetch(`${API_URL}/apply/${id}`, {
+export function deleteRequest(id: number) {
+  return apiFetch(`/request/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
+}
 
-  return res.json();
+//
+// ===== APPLY =====
+//
+
+export function createApply(data: any) {
+  return apiFetch("/apply/create", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteApply(id: number) {
+  return apiFetch(`/apply/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function getApplications() {
+  return apiFetch("/apply");
+}
+
+//
+// ===== USER =====
+//
+
+export function getUsers() {
+  return apiFetch("/auth");
 }

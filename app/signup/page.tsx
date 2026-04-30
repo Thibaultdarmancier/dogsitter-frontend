@@ -18,10 +18,20 @@ export default function Signup() {
   const router = useRouter();
 
   const handleSignup = async () => {
-    await registerUser(form);
-    alert("Account created!");
-    router.push("/login");
-  };
+  try {
+    const res = await registerUser(form);
+
+    if (res.message === "Register Complete") {
+      alert("Account created!");
+      router.push("/login");
+    } else {
+      alert(res.message || "Signup failed");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Connection error");
+  }
+};
 
   return (
     <div className="form-wrapper">
