@@ -91,10 +91,6 @@ export default function RootLayout({ children }: any) {
 
               {user?.role === "dogsitter" && (
                 <>
-                  <Link href="/open-requests">
-                    <ClipboardList size={18} /> Open requests
-                  </Link>
-
                   <Link href="/applications">
                     <FileText size={18} /> Applications
                   </Link>
