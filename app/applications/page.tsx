@@ -9,9 +9,9 @@ const API_URL = "http://localhost:3000";
 export default function Applications() {
   const [requests, setRequests] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
 
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
 
   // ===== AUTH =====
   useEffect(() => {
@@ -33,49 +33,79 @@ export default function Applications() {
   }, [user]);
 
   const loadAll = async () => {
-    const [reqRes, appRes] = await Promise.all([
-      fetch(`${API_URL}/request`),
-      fetch(`${API_URL}/apply`),
-    ]);
+    try {
+      const [reqRes, appRes] = await Promise.all([
+        fetch(`${API_URL}/request`),
+        fetch(`${API_URL}/apply`),
+      ]);
 
-    const reqData = await reqRes.json();
-    const appData = await appRes.json();
+      const reqData = await reqRes.json();
+      const appData = await appRes.json();
 
-    setRequests(Array.isArray(reqData) ? reqData : []);
-    setApplications(Array.isArray(appData) ? appData : []);
+      setRequests(Array.isArray(reqData) ? reqData : []);
+      setApplications(Array.isArray(appData) ? appData : []);
+    } catch (err) {
+      console.log("LOAD ERROR", err);
+      setRequests([]);
+      setApplications([]);
+    }
   };
 
   // ===== APPLY =====
   const handleApply = async (requestId: number) => {
-    await fetch(`${API_URL}/apply/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        dogsitter_id: user.id,
-        request_id: requestId,
-        status: "pending",
-      }),
-    });
+    try {
+      await fetch(`${API_URL}/apply/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dogsitter_id: user.id,
+          request_id: requestId,
+          status: "pending",
+        }),
+      });
 
-    loadAll(); // 🔥 refresh complet
+      // 🔥 update local (pas besoin reload complet)
+      setApplications((prev) => [
+        ...prev,
+        {
+          id: Date.now(), // fake id temporaire
+          dogsitter_id: user.id,
+          request_id: requestId,
+          status: "pending",
+        },
+      ]);
+    } catch (err) {
+      console.log("APPLY ERROR", err);
+    }
   };
 
   // ===== DELETE =====
   const handleDelete = async (id: number) => {
-    await fetch(`${API_URL}/apply/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const appToDelete = applications.find((a) => a.id === id);
 
-    loadAll(); // 🔥 refresh complet
+      await fetch(`${API_URL}/apply/${id}`, {
+        method: "DELETE",
+      });
+
+      // 🔥 remove local → la request revient en haut DIRECT
+      setApplications((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.log("DELETE ERROR", err);
+    }
   };
 
   // ===== HELPERS =====
 
-  // ❗ IMPORTANT : check si ANY apply existe
-  const hasAnyApplication = (requestId: number) => {
-    return applications.some((a) => a.request_id === requestId);
+  // 🔥 IMPORTANT : check seulement TES apply
+  const isMyApplication = (requestId: number) => {
+    return applications.some(
+      (a) =>
+        a.request_id === requestId &&
+        a.dogsitter_id === user.id
+    );
   };
 
   const myApplications = applications.filter(
@@ -95,7 +125,7 @@ export default function Applications() {
       <h2>Available requests</h2>
 
       {requests
-        .filter((r) => !hasAnyApplication(r.id)) // 🔥 KEY FIX
+        .filter((r) => !isMyApplication(r.id)) // ✅ FIX PRINCIPAL
         .map((r) => (
           <div key={r.id} className="card" style={{ marginTop: 10 }}>
             <div style={{ display: "flex", gap: 15 }}>
