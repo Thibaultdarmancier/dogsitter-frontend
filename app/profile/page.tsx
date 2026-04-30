@@ -32,10 +32,9 @@ export default function Profile() {
       const data = await res.json();
 
       setUser({
-        ...data,
-        role: localUser.role,
-        id: localUser.id,
-        token: localUser.token,
+        name: data.name || data.username || "",
+        email: data.email || "",
+        role: data.role || localUser.role,
       });
 
     } catch (err) {
@@ -57,31 +56,25 @@ export default function Profile() {
 
       <div className="profile-right">
 
+        {/* NAME */}
         <div className="profile-group">
           <label>Name</label>
           <p><b>{user.name || "-"}</b></p>
         </div>
 
+        {/* EMAIL */}
         <div className="profile-group">
           <label>Email</label>
-          <p>{user.email || "-"}</p>
+          <p>{user.email}</p>
         </div>
 
-        <div className="profile-group">
-          <label>Phone</label>
-          <p>{user.phone || "Not provided"}</p>
-        </div>
-
+        {/* ROLE */}
         <div className="profile-group">
           <label>Role</label>
           <p>{user.role}</p>
         </div>
 
-        <div className="profile-group">
-          <label>Address</label>
-          <p>{user.address || "Not provided"}</p>
-        </div>
-
+        {/* BONUS INFO */}
         {user.role === "dogsitter" && (
           <div className="profile-group">
             <label>Status</label>
@@ -96,6 +89,7 @@ export default function Profile() {
           </div>
         )}
 
+        {/* ACTIONS */}
         <div className="profile-actions">
           <button
             className="btn-green"
