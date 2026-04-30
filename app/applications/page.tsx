@@ -65,16 +65,17 @@ export default function Applications() {
 
   // ===== DELETE =====
   const handleDelete = async (id: number) => {
-    try {
-      await fetch(`${API_URL}/apply/${id}`, {
-        method: "DELETE",
-      });
+  try {
+    const data = await deleteApply(id);
 
-      setApplications((prev) => prev.filter((a) => a.id !== id));
-    } catch (err) {
-      console.log("ERROR DELETE", err);
-    }
-  };
+    console.log("DELETE RESPONSE =", data);
+
+    loadRequests();
+    loadApplications();
+  } catch (err) {
+    console.log("ERROR DELETE", err);
+  }
+};
 
   // ===== CHECK APPLIED =====
   const isApplied = (requestId: number) => {
