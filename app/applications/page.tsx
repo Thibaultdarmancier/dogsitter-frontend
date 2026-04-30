@@ -1,88 +1,129 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getUser } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 const API_URL = "http://localhost:3000";
 
-export default function MyApplications() {
+export default function Applications() {
   const [requests, setRequests] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
 
-  const DOGSITTER_ID = 1;
+  const router = useRouter();
 
+  const [user, setUser] = useState<any>(null);
+
+  // ===== LOAD USER =====
   useEffect(() => {
-    loadRequests();
-    loadApplications();
+    const u = getUser();
+
+    if (!u || u.role !== "dogsitter") {
+      router.push("/");
+      return;
+    }
+
+    setUser(u);
   }, []);
 
-  // ===== LOAD AVAILABLE REQUESTS =====
+  // ===== LOAD DATA =====
+  useEffect(() => {
+    if (user) {
+      loadRequests();
+      loadApplications();
+    }
+  }, [user]);
+
+  // ===== LOAD OPEN REQUESTS =====
   const loadRequests = async () => {
-    const res = await fetch(`${API_URL}/request/open`);
-    const data = await res.json();
-    setRequests(data);
+    try {
+      const res = await fetch(`${API_URL}/request/open`);
+      const data = await res.json();
+
+      setRequests(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.log("ERROR LOAD REQUESTS", err);
+      setRequests([]);
+    }
   };
 
   // ===== LOAD MY APPLICATIONS =====
   const loadApplications = async () => {
-    const res = await fetch(`${API_URL}/apply`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`${API_URL}/apply`);
+      const data = await res.json();
 
-    // filtre par dogsitter_id
-    const myApps = data.filter(
-      (a: any) => a.dogsitter_id === DOGSITTER_ID
-    );
+      const myApps = data.filter(
+        (a: any) => a.dogsitter_id === user.id
+      );
 
-    setApplications(myApps);
+      setApplications(myApps);
+    } catch (err) {
+      console.log("ERROR LOAD APPLICATIONS", err);
+      setApplications([]);
+    }
   };
 
   // ===== APPLY =====
   const handleApply = async (requestId: number) => {
-    await fetch(`${API_URL}/apply/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        dogsitter_id: DOGSITTER_ID,
-        request_id: requestId,
-        status: "pending",
-      }),
-    });
+    try {
+      await fetch(`${API_URL}/apply/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dogsitter_id: user.id,
+          request_id: requestId,
+          status: "pending",
+        }),
+      });
 
-    loadApplications();
+      loadApplications(); // refresh
+    } catch (err) {
+      console.log("ERROR APPLY", err);
+    }
   };
 
-  // ===== DELETE APPLICATION =====
+  // ===== DELETE =====
   const handleDelete = async (id: number) => {
-    await fetch(`${API_URL}/apply/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      await fetch(`${API_URL}/apply/${id}`, {
+        method: "DELETE",
+      });
 
-    setApplications((prev) => prev.filter((a) => a.id !== id));
+      setApplications((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.log("ERROR DELETE", err);
+    }
   };
 
-  // ===== CHECK IF ALREADY APPLIED =====
+  // ===== CHECK APPLIED =====
   const isApplied = (requestId: number) => {
     return applications.some((a) => a.request_id === requestId);
   };
 
+  if (!user) return <p>Loading...</p>;
+
   return (
     <div className="card">
 
-      {/* ================= AVAILABLE REQUESTS ================= */}
+      {/* ===== AVAILABLE REQUESTS ===== */}
       <h2>Available requests</h2>
       <p className="subtitle">
         Browse and select requests that you are interested in
       </p>
+
+      {requests.length === 0 && <p>No available requests</p>}
 
       {requests.map((r) => (
         <div
           key={r.id}
           style={{
             display: "flex",
-            alignItems: "center",
             justifyContent: "space-between",
+            alignItems: "center",
             border: "1px solid #ddd",
             borderRadius: "10px",
             padding: "15px",
@@ -91,26 +132,23 @@ export default function MyApplications() {
           }}
         >
           <div style={{ display: "flex", gap: "15px" }}>
-            {/* IMAGE MOCK */}
             <img
-              src="https://placedog.net/200"
+              src={r.dog_image || "https://placedog.net/200"}
               width="100"
               style={{ borderRadius: "10px" }}
             />
 
             <div>
-              <h3>Dog #{r.dog_id}</h3>
+              <h3>{r.dog_name || `Dog #${r.dog_id}`}</h3>
               <p>{r.date}</p>
               <p>
-                {r.start_time} to {r.end_time}
+                {r.start_time} - {r.end_time}
               </p>
               <p>{r.address}</p>
             </div>
           </div>
 
           <div style={{ display: "flex", gap: "10px" }}>
-            
-            {/* OPEN */}
             <button
               className="btn-gray"
               onClick={() => setSelected(r)}
@@ -118,7 +156,6 @@ export default function MyApplications() {
               View details
             </button>
 
-            {/* APPLY */}
             {isApplied(r.id) ? (
               <span className="status status-pending">Applied</span>
             ) : (
@@ -133,11 +170,12 @@ export default function MyApplications() {
         </div>
       ))}
 
-      {/* ================= OPEN DETAILS ================= */}
+      {/* ===== DETAILS ===== */}
       {selected && (
         <div style={{ marginTop: 20 }}>
           <h3>Request Details</h3>
-          <p><b>Dog ID:</b> {selected.dog_id}</p>
+
+          <p><b>Dog:</b> {selected.dog_name}</p>
           <p><b>Date:</b> {selected.date}</p>
           <p><b>Time:</b> {selected.start_time} - {selected.end_time}</p>
           <p><b>Location:</b> {selected.address}</p>
@@ -147,48 +185,54 @@ export default function MyApplications() {
         </div>
       )}
 
-      {/* ================= MY APPLICATIONS ================= */}
+      {/* ===== MY APPLICATIONS ===== */}
       <h2 style={{ marginTop: "40px" }}>My applications</h2>
-      <p className="subtitle">Requests you have applied to</p>
+      <p className="subtitle">
+        Requests you have applied to
+      </p>
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Request ID</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {applications.map((a) => (
-            <tr key={a.id}>
-              <td>{a.request_id}</td>
-
-              <td>
-                <span
-                  className={`status ${
-                    a.status === "pending"
-                      ? "status-pending"
-                      : ""
-                  }`}
-                >
-                  {a.status}
-                </span>
-              </td>
-
-              <td>
-                <button
-                  className="btn-red"
-                  onClick={() => handleDelete(a.id)}
-                >
-                  Delete
-                </button>
-              </td>
+      {applications.length === 0 ? (
+        <p>No applications yet</p>
+      ) : (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {applications.map((a) => (
+              <tr key={a.id}>
+                <td>{a.request_id}</td>
+
+                <td>
+                  <span
+                    className={`status ${
+                      a.status === "pending"
+                        ? "status-pending"
+                        : ""
+                    }`}
+                  >
+                    {a.status}
+                  </span>
+                </td>
+
+                <td>
+                  <button
+                    className="btn-red"
+                    onClick={() => handleDelete(a.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
     </div>
   );
