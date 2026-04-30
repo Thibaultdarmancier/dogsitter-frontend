@@ -24,10 +24,15 @@ export async function loginUser(data: any) {
   return res.json();
 }
 
-<<<<<<< HEAD
+
 export function setUser(user: any) {
   if (typeof window === "undefined") return;
+
+  console.log("SET USER SAVING =", user);
+
   localStorage.setItem("user", JSON.stringify(user));
+
+  console.log("AFTER SAVE =", localStorage.getItem("user"));
 }
 
 export function getUser() {
@@ -41,21 +46,6 @@ export function getUser() {
   } catch {
     return null;
   }
-=======
-// ===== SAFE LOCAL STORAGE =====
-
-export function setUser(user: any) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("user", JSON.stringify(user));
-  }
-}
-
-export function getUser() {
-  if (typeof window === "undefined") return null; // 🔥 FIX IMPORTANT
-
-  const data = localStorage.getItem("user");
-  return data ? JSON.parse(data) : null;
->>>>>>> c162ec3e5622ff1c87a7a95409f640bacc7d097e
 }
 
 export function getToken() {
@@ -64,12 +54,7 @@ export function getToken() {
 }
 
 export function logout() {
-<<<<<<< HEAD
-  if (typeof window === "undefined") return;
-  localStorage.removeItem("user");
-=======
   if (typeof window !== "undefined") {
     localStorage.removeItem("user");
   }
->>>>>>> c162ec3e5622ff1c87a7a95409f640bacc7d097e
 }

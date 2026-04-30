@@ -80,14 +80,14 @@ export function createApply(data: any) {
   });
 }
 
+export function getApplications() {
+  return apiFetch("/apply/my-applications");
+}
+
 export function deleteApply(id: number) {
   return apiFetch(`/apply/${id}`, {
     method: "DELETE",
   });
-}
-
-export function getApplications() {
-  return apiFetch("/apply");
 }
 
 //

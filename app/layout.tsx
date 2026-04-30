@@ -20,10 +20,12 @@ export default function RootLayout({ children }: any) {
   const router = useRouter();
 
   const [user, setUserState] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setUserState(getUser());
-  }, [pathname]); // 🔥 refresh à chaque navigation
+    setMounted(true);
+  }, [pathname]);
 
   const handleLogout = () => {
     logout();
@@ -31,15 +33,31 @@ export default function RootLayout({ children }: any) {
     router.push("/");
   };
 
+  if (!mounted) {
+    return (
+      <html>
+        <body>
+          <div className="layout">
+            <div className="topbar">Dogsitter</div>
+            <div className="main">
+              <div className="sidebar">
+                <h3>MENU</h3>
+              </div>
+              <div className="content">{children}</div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html>
       <body>
         <div className="layout">
-
           <div className="topbar">Dogsitter</div>
 
           <div className="main">
-
             <div className="sidebar">
               <h3>MENU</h3>
 
@@ -47,7 +65,6 @@ export default function RootLayout({ children }: any) {
                 <Home size={18} /> Dashboard
               </Link>
 
-              {/* NOT CONNECTED */}
               {!user && (
                 <>
                   <Link href="/login">
@@ -60,7 +77,6 @@ export default function RootLayout({ children }: any) {
                 </>
               )}
 
-              {/* OWNER */}
               {user?.role === "owner" && (
                 <>
                   <Link href="/my-requests">
@@ -73,14 +89,18 @@ export default function RootLayout({ children }: any) {
                 </>
               )}
 
-              {/* DOGSITTER */}
               {user?.role === "dogsitter" && (
-                <Link href="/applications">
-                  <FileText size={18} /> Applications
-                </Link>
+                <>
+                  <Link href="/open-requests">
+                    <ClipboardList size={18} /> Open requests
+                  </Link>
+
+                  <Link href="/applications">
+                    <FileText size={18} /> Applications
+                  </Link>
+                </>
               )}
 
-              {/* CONNECTED */}
               {user && (
                 <>
                   <Link href="/profile">
@@ -104,7 +124,6 @@ export default function RootLayout({ children }: any) {
             </div>
 
             <div className="content">{children}</div>
-
           </div>
         </div>
       </body>

@@ -18,33 +18,31 @@ export default function Login() {
     try {
       const res = await loginUser(form);
 
-      if (!res.access_token) {
+      console.log("LOGIN RESPONSE =", res);
+
+      if (!res.access_token || !res.user) {
         alert("Login failed");
         return;
       }
 
-      const profileRes = await fetch(`${API_URL}/auth/profile`, {
-        headers: {
-          Authorization: `Bearer ${res.access_token}`,
-        },
-      });
-
-      const profile = await profileRes.json();
+      console.log("LOGIN RESPONSE =", res);
 
       const user = {
-        id: profile.id,
-        name: profile.name || profile.username,
-        email: profile.email,
-        role: profile.role,
+        id: res.user.id,
+        name: res.user.name,
+        email: res.user.email,
+        role: res.user.role,
         token: res.access_token,
       };
 
+      console.log("USER TO SAVE =", user);
+
       setUser(user);
 
-      // 🔥 REDIRECTION CLEAN
-      router.replace(
-        user.role === "dogsitter" ? "/applications" : "/my-requests"
-      );
+      console.log("LOCALSTORAGE AFTER LOGIN =", localStorage.getItem("user"));
+
+      window.location.href =
+        user.role === "dogsitter" ? "/open-requests" : "/my-requests";
 
     } catch (err) {
       console.log(err);

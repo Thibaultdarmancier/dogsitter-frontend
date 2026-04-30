@@ -1,13 +1,31 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { getUser } from "@/lib/auth";
 
 export default function Home() {
-  const user = getUser();
+  const [user, setUser] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const loggedUser = getUser();
+    setUser(loggedUser);
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="card">
+        <h1>Welcome to Dogsitter 🐶</h1>
+        <p className="subtitle">
+          Your trusted platform to connect dog owners and passionate dogsitters.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="card">
-
       <h1>Welcome to Dogsitter 🐶</h1>
 
       <p className="subtitle">
@@ -16,7 +34,6 @@ export default function Home() {
 
       <hr style={{ margin: "20px 0" }} />
 
-      {/* 🎯 MESSAGE PERSONNALISÉ */}
       {user && (
         <p>
           Hello <b>{user.name}</b> 👋 <br />
@@ -31,8 +48,6 @@ export default function Home() {
       )}
 
       <div style={{ marginTop: "20px" }}>
-
-        {/* OWNER */}
         {user?.role === "owner" && (
           <>
             <p>🐾 Create and manage your dog walking requests easily.</p>
@@ -41,7 +56,6 @@ export default function Home() {
           </>
         )}
 
-        {/* DOGSITTER */}
         {user?.role === "dogsitter" && (
           <>
             <p>💼 Browse available dog requests.</p>
@@ -50,7 +64,6 @@ export default function Home() {
           </>
         )}
 
-        {/* NOT LOGGED */}
         {!user && (
           <>
             <p>🐾 Post requests and find trusted help.</p>
@@ -58,7 +71,6 @@ export default function Home() {
             <p>🚀 Get started by creating an account.</p>
           </>
         )}
-
       </div>
 
       <hr style={{ margin: "20px 0" }} />
@@ -66,7 +78,6 @@ export default function Home() {
       <p style={{ color: "#666" }}>
         Dogsitter helps make dog care simple, safe, and stress-free.
       </p>
-
     </div>
   );
 }

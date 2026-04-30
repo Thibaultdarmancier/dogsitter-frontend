@@ -1,5 +1,5 @@
 "use client";
-
+import { getOpenRequests, getApplications, createApply, deleteApply } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -37,50 +37,27 @@ export default function Applications() {
 
   // ===== LOAD OPEN REQUESTS =====
   const loadRequests = async () => {
-    try {
-      const res = await fetch(`${API_URL}/request/open`);
-      const data = await res.json();
-
-      setRequests(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.log("ERROR LOAD REQUESTS", err);
-      setRequests([]);
-    }
+    const data = await getOpenRequests();
+    setRequests(Array.isArray(data) ? data : []);
   };
 
   // ===== LOAD MY APPLICATIONS =====
   const loadApplications = async () => {
-    try {
-      const res = await fetch(`${API_URL}/apply`);
-      const data = await res.json();
-
-      const myApps = data.filter(
-        (a: any) => a.dogsitter_id === user.id
-      );
-
-      setApplications(myApps);
-    } catch (err) {
-      console.log("ERROR LOAD APPLICATIONS", err);
-      setApplications([]);
-    }
+    const data = await getApplications();
+    setApplications(Array.isArray(data) ? data : []);
   };
 
   // ===== APPLY =====
   const handleApply = async (requestId: number) => {
     try {
-      await fetch(`${API_URL}/apply/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dogsitter_id: user.id,
-          request_id: requestId,
-          status: "pending",
-        }),
+      const data = await createApply({
+        request_id: requestId,
       });
 
-      loadApplications(); // refresh
+      console.log("APPLY RESPONSE =", data);
+
+      loadRequests();
+      loadApplications();
     } catch (err) {
       console.log("ERROR APPLY", err);
     }
