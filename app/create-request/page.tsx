@@ -42,25 +42,25 @@ export default function CreateRequest() {
   };
 
   // ✅ CONFIRM → BACKEND
-  const handleConfirm = async () => {
-    try {
-      const res = await createRequest(form);
+const handleConfirm = async () => {
+  try {
+    const res = await createRequest(form);
 
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Backend error:", err);
-        alert("Error creating request");
-        return;
-      }
+    console.log("Backend response:", res);
 
-      alert("Request created!");
-      setConfirm(false);
-
-    } catch (err) {
-      console.error(err);
-      alert("Network error");
+    if (!res) {
+      alert("Error creating request");
+      return;
     }
-  };
+
+    alert("Request created!");
+    setConfirm(false);
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error");
+  }
+};
 
   // ===== CONFIRM SCREEN =====
   if (confirm) {
