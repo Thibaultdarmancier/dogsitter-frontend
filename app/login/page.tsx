@@ -10,14 +10,12 @@ export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: "owner",
   });
 
   const router = useRouter();
 
   const handleLogin = async () => {
     try {
-      // 🔥 LOGIN
       const res = await loginUser(form);
       console.log("LOGIN RESPONSE =", res);
 
@@ -26,7 +24,7 @@ export default function Login() {
         return;
       }
 
-      // 🔥 GET PROFILE (IMPORTANT)
+      // 🔥 récupérer profil complet (avec role)
       const profileRes = await fetch(`${API_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${res.access_token}`,
@@ -34,12 +32,13 @@ export default function Login() {
       });
 
       const profile = await profileRes.json();
+      console.log("PROFILE =", profile);
 
       const user = {
         id: profile.id,
         name: profile.name,
         email: profile.email,
-        role: form.role, // 🔥 backend ne renvoie pas le role ici
+        role: profile.role, // ✅ FIX IMPORTANT
         token: res.access_token,
       };
 
@@ -63,7 +62,6 @@ export default function Login() {
       <div className="form-card">
         <h2>Login</h2>
 
-        {/* EMAIL */}
         <div className="form-group">
           <label>Email</label>
           <input
@@ -71,24 +69,12 @@ export default function Login() {
           />
         </div>
 
-        {/* PASSWORD */}
         <div className="form-group">
           <label>Password</label>
           <input
             type="password"
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
-        </div>
-
-        {/* ROLE */}
-        <div className="form-group">
-          <label>Login as</label>
-          <select
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          >
-            <option value="owner">User</option>
-            <option value="dogsitter">Dogsitter</option>
-          </select>
         </div>
 
         <button className="btn-green" onClick={handleLogin}>
