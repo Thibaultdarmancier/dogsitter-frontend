@@ -317,3 +317,8 @@ input, textarea {
   background: #facc15;
   color: black;
 }
+
+.status-pending {
+  background: #facc15;
+  color: black;
+}

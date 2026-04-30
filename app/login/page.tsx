@@ -18,14 +18,11 @@ export default function Login() {
     try {
       const res = await loginUser(form);
 
-      console.log("LOGIN RESPONSE =", res);
-
       if (!res.access_token) {
         alert("Login failed");
         return;
       }
 
-      // 🔥 GET PROFILE AVEC ROLE
       const profileRes = await fetch(`${API_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${res.access_token}`,
@@ -34,32 +31,23 @@ export default function Login() {
 
       const profile = await profileRes.json();
 
-      console.log("PROFILE =", profile);
-
       const user = {
         id: profile.id,
         name: profile.name || profile.username,
         email: profile.email,
-        role: profile.role, // ✅ vrai rôle backend
+        role: profile.role,
         token: res.access_token,
       };
 
-      console.log("USER STORED =", user);
-
       setUser(user);
 
-      // 🔥 IMPORTANT : force update du layout
-      window.dispatchEvent(new Event("storage"));
-
-      // 🔁 REDIRECTION
-      if (user.role === "dogsitter") {
-        router.push("/applications");
-      } else {
-        router.push("/my-requests");
-      }
+      // 🔥 REDIRECTION CLEAN
+      router.replace(
+        user.role === "dogsitter" ? "/applications" : "/my-requests"
+      );
 
     } catch (err) {
-      console.log("LOGIN ERROR =", err);
+      console.log(err);
       alert("Connection error");
     }
   };

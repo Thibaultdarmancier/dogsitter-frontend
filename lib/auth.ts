@@ -24,13 +24,19 @@ export async function registerUser(data: any) {
   return res.json();
 }
 
-// ===== LOCAL STORAGE =====
+// ===== SAFE LOCAL STORAGE =====
+
 export function setUser(user: any) {
-  localStorage.setItem("user", JSON.stringify(user));
+  if (typeof window !== "undefined") {
+    localStorage.setItem("user", JSON.stringify(user));
+  }
 }
 
 export function getUser() {
-  return JSON.parse(localStorage.getItem("user") || "null");
+  if (typeof window === "undefined") return null; // 🔥 FIX IMPORTANT
+
+  const data = localStorage.getItem("user");
+  return data ? JSON.parse(data) : null;
 }
 
 export function getToken() {
@@ -39,5 +45,7 @@ export function getToken() {
 }
 
 export function logout() {
-  localStorage.removeItem("user");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("user");
+  }
 }

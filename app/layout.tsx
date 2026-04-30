@@ -22,21 +22,8 @@ export default function RootLayout({ children }: any) {
   const [user, setUserState] = useState<any>(null);
 
   useEffect(() => {
-    const updateUser = () => {
-      const u = getUser();
-      setUserState(u);
-      console.log("LAYOUT USER =", u);
-    };
-
-    updateUser();
-
-    // 🔥 écoute les changements après login
-    window.addEventListener("storage", updateUser);
-
-    return () => {
-      window.removeEventListener("storage", updateUser);
-    };
-  }, []);
+    setUserState(getUser());
+  }, [pathname]); // 🔥 refresh à chaque navigation
 
   const handleLogout = () => {
     logout();
@@ -49,16 +36,13 @@ export default function RootLayout({ children }: any) {
       <body>
         <div className="layout">
 
-          {/* 🔶 TOP BAR */}
           <div className="topbar">Dogsitter</div>
 
           <div className="main">
 
-            {/* 🔶 SIDEBAR */}
             <div className="sidebar">
               <h3>MENU</h3>
 
-              {/* ALWAYS */}
               <Link href="/" className={pathname === "/" ? "active" : ""}>
                 <Home size={18} /> Dashboard
               </Link>
@@ -119,7 +103,6 @@ export default function RootLayout({ children }: any) {
               )}
             </div>
 
-            {/* PAGE */}
             <div className="content">{children}</div>
 
           </div>
