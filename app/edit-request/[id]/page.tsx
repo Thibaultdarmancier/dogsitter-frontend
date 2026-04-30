@@ -25,10 +25,20 @@ export default function EditRequest() {
 
   // 🔥 LOAD DATA
   useEffect(() => {
-    getRequest(Number(id)).then((data) => {
+  if (!id) return;
+
+  const numericId = Number(id);
+
+  if (isNaN(numericId)) return;
+
+  getRequest(numericId).then((data) => {
+    console.log("EDIT REQUEST DATA =", data);
+
+    if (data?.id) {
       setForm(data);
-    });
-  }, [id]);
+    }
+  });
+}, [id]);
 
   // 📷 IMAGE
   const handleImage = (e: any) => {
@@ -49,6 +59,10 @@ export default function EditRequest() {
 
   // 💾 SAVE
   const handleSave = async () => {
+<<<<<<< HEAD
+  try {
+    const numericId = Number(id);
+=======
     try {
       await updateRequest(Number(id), {
         dog_name: form.dog_name,
@@ -62,15 +76,23 @@ export default function EditRequest() {
         service_type: form.service_type,
         // ❌ PAS DE status ici
       });
+>>>>>>> 0920ee8bf4ba6a3be982a9b836444c7ba35d4c14
 
-      alert("Request updated!");
-      router.push("/my-requests");
-
-    } catch (err) {
-      console.error(err);
-      alert("Error updating request");
+    if (isNaN(numericId)) {
+      alert("Invalid request id");
+      return;
     }
-  };
+
+    await updateRequest(numericId, form);
+
+    alert("Request updated!");
+    router.push("/my-requests");
+
+  } catch (err) {
+    console.error(err);
+    alert("Error updating request");
+  }
+};
 
   return (
     <div className="form-wrapper">
