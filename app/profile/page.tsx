@@ -33,7 +33,9 @@ export default function Profile() {
 
       setUser({
         ...data,
-        role: localUser.role, // on garde le role local
+        role: localUser.role,
+        id: localUser.id,
+        token: localUser.token,
       });
 
     } catch (err) {
@@ -57,46 +59,48 @@ export default function Profile() {
 
         <div className="profile-group">
           <label>Name</label>
-          <input value={user.name || user.username || ""} readOnly />
+          <p><b>{user.name || "-"}</b></p>
         </div>
 
         <div className="profile-group">
           <label>Email</label>
-          <input value={user.email || ""} readOnly />
+          <p>{user.email || "-"}</p>
         </div>
 
         <div className="profile-group">
           <label>Phone</label>
-          <input value={user.phone || "Not provided"} readOnly />
+          <p>{user.phone || "Not provided"}</p>
         </div>
 
         <div className="profile-group">
           <label>Role</label>
-          <input value={user.role || ""} readOnly />
+          <p>{user.role}</p>
         </div>
 
         <div className="profile-group">
           <label>Address</label>
-          <input value={user.address || "Not provided"} readOnly />
+          <p>{user.address || "Not provided"}</p>
         </div>
 
-        {/* 🔥 affichage selon rôle */}
         {user.role === "dogsitter" && (
           <div className="profile-group">
             <label>Status</label>
-            <input value="Available for jobs" readOnly />
+            <p>Available for jobs</p>
           </div>
         )}
 
         {user.role === "owner" && (
           <div className="profile-group">
             <label>Account type</label>
-            <input value="Dog owner" readOnly />
+            <p>Dog owner</p>
           </div>
         )}
 
         <div className="profile-actions">
-          <button className="btn-green">
+          <button
+            className="btn-green"
+            onClick={() => router.push("/edit-profile")}
+          >
             Edit profile
           </button>
 
@@ -106,7 +110,6 @@ export default function Profile() {
         </div>
 
       </div>
-
     </div>
   );
 }
