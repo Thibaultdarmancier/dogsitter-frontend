@@ -43,13 +43,21 @@ export default function MyRequests() {
         <tbody>
           {requests.map((r) => (
             <tr key={r.id}>
-              <td>{r.dog_id}</td>
+              
+              {/* 🔥 si backend updated */}
+              <td>{r.dog_name || r.dog_id}</td>
+
               <td>{r.date}</td>
-              <td>{r.start_time} - {r.end_time}</td>
+
+              <td>
+                {r.start_time} - {r.end_time}
+              </td>
+
               <td>{r.address}</td>
+
               <td>{r.service_type}</td>
 
-              {/* ✅ STATUS RÉEL */}
+              {/* ✅ STATUS FIX */}
               <td>
                 <span
                   className={`status ${
@@ -73,7 +81,9 @@ export default function MyRequests() {
                 {/* EDIT */}
                 <button
                   className="btn-green"
-                  onClick={() => router.push(`/edit-request/${r.id}`)}
+                  onClick={() =>
+                    router.push(`/edit-request/${r.id}`)
+                  }
                 >
                   Edit
                 </button>
@@ -97,7 +107,7 @@ export default function MyRequests() {
         <div style={{ marginTop: 20 }}>
           <h3>Request Details</h3>
 
-          <p><b>Dog ID:</b> {selected.dog_id}</p>
+          <p><b>Dog:</b> {selected.dog_name || selected.dog_id}</p>
           <p><b>Date:</b> {selected.date}</p>
           <p><b>Time:</b> {selected.start_time} - {selected.end_time}</p>
           <p><b>Address:</b> {selected.address}</p>
