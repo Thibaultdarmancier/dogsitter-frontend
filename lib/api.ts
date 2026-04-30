@@ -43,9 +43,15 @@ export function getRequest(id: number) {
   return apiFetch(`/request/${id}`);
 }
 
-export function createRequest(data: any) {
-  return apiFetch("/request/create", {
+export async function createRequest(data: any) {
+  const token = JSON.parse(localStorage.getItem("user") || "{}")?.token;
+
+  return fetch(`${API_URL}/request/create`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(data),
   });
 }
