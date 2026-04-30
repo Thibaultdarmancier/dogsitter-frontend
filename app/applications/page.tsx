@@ -1,5 +1,5 @@
 "use client";
-import { getOpenRequests, getApplications, createApply, deleteApply } from "@/lib/api";
+
 import { useEffect, useState } from "react";
 import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -12,10 +12,9 @@ export default function Applications() {
   const [selected, setSelected] = useState<any | null>(null);
 
   const router = useRouter();
-
   const [user, setUser] = useState<any>(null);
 
-  // ===== LOAD USER =====
+  // ===== AUTH =====
   useEffect(() => {
     const u = getUser();
 
@@ -27,7 +26,7 @@ export default function Applications() {
     setUser(u);
   }, []);
 
-  // ===== LOAD DATA =====
+  // ===== LOAD =====
   useEffect(() => {
     if (user) {
       loadRequests();
@@ -35,51 +34,56 @@ export default function Applications() {
     }
   }, [user]);
 
-  // ===== LOAD OPEN REQUESTS =====
   const loadRequests = async () => {
-    const data = await getOpenRequests();
+    const res = await fetch(`${API_URL}/request`);
+    const data = await res.json();
     setRequests(Array.isArray(data) ? data : []);
   };
 
-  // ===== LOAD MY APPLICATIONS =====
   const loadApplications = async () => {
-    const data = await getApplications();
-    setApplications(Array.isArray(data) ? data : []);
+    const res = await fetch(`${API_URL}/apply`);
+    const data = await res.json();
+
+    const myApps = data.filter(
+      (a: any) => a.dogsitter_id === user.id
+    );
+
+    setApplications(myApps);
   };
 
   // ===== APPLY =====
   const handleApply = async (requestId: number) => {
-    try {
-      const data = await createApply({
+    await fetch(`${API_URL}/apply/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        dogsitter_id: user.id,
         request_id: requestId,
-      });
+        status: "pending",
+      }),
+    });
 
-      console.log("APPLY RESPONSE =", data);
-
-      loadRequests();
-      loadApplications();
-    } catch (err) {
-      console.log("ERROR APPLY", err);
-    }
+    loadApplications();
   };
 
   // ===== DELETE =====
   const handleDelete = async (id: number) => {
-  try {
-    const data = await deleteApply(id);
+    await fetch(`${API_URL}/apply/${id}`, {
+      method: "DELETE",
+    });
 
-    console.log("DELETE RESPONSE =", data);
+    setApplications((prev) => prev.filter((a) => a.id !== id));
+  };
 
-    loadRequests();
-    loadApplications();
-  } catch (err) {
-    console.log("ERROR DELETE", err);
-  }
-};
-
-  // ===== CHECK APPLIED =====
+  // ===== HELPERS =====
   const isApplied = (requestId: number) => {
     return applications.some((a) => a.request_id === requestId);
+  };
+
+  const getRequestById = (id: number) => {
+    return requests.find((r) => r.id === id);
   };
 
   if (!user) return <p>Loading...</p>;
@@ -87,53 +91,29 @@ export default function Applications() {
   return (
     <div className="card">
 
-      {/* ===== AVAILABLE REQUESTS ===== */}
+      {/* ===== AVAILABLE ===== */}
       <h2>Available requests</h2>
-      <p className="subtitle">
-        Browse and select requests that you are interested in
-      </p>
-
-      {requests.length === 0 && <p>No available requests</p>}
 
       {requests.map((r) => (
-        <div
-          key={r.id}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-            padding: "15px",
-            marginTop: "10px",
-            background: "#fff",
-          }}
-        >
-          <div style={{ display: "flex", gap: "15px" }}>
+        <div key={r.id} className="card" style={{ marginTop: 10 }}>
+          <div style={{ display: "flex", gap: 15 }}>
+
             <img
               src={r.dog_image || "https://placedog.net/200"}
               width="100"
-              style={{ borderRadius: "10px" }}
+              style={{ borderRadius: 10 }}
             />
 
             <div>
-              <h3>{r.dog_name || `Dog #${r.dog_id}`}</h3>
+              <h3>{r.dog_name}</h3>
               <p>{r.date}</p>
-              <p>
-                {r.start_time} - {r.end_time}
-              </p>
+              <p>{r.start_time} - {r.end_time}</p>
               <p>{r.address}</p>
             </div>
+
           </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              className="btn-gray"
-              onClick={() => setSelected(r)}
-            >
-              View details
-            </button>
-
+          <div style={{ marginTop: 10 }}>
             {isApplied(r.id) ? (
               <span className="status status-pending">Applied</span>
             ) : (
@@ -148,70 +128,68 @@ export default function Applications() {
         </div>
       ))}
 
-      {/* ===== DETAILS ===== */}
-      {selected && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Request Details</h3>
-
-          <p><b>Dog:</b> {selected.dog_name}</p>
-          <p><b>Date:</b> {selected.date}</p>
-          <p><b>Time:</b> {selected.start_time} - {selected.end_time}</p>
-          <p><b>Location:</b> {selected.address}</p>
-          <p><b>Status:</b> {selected.status}</p>
-
-          <button onClick={() => setSelected(null)}>Close</button>
-        </div>
-      )}
-
       {/* ===== MY APPLICATIONS ===== */}
-      <h2 style={{ marginTop: "40px" }}>My applications</h2>
-      <p className="subtitle">
-        Requests you have applied to
-      </p>
+      <h2 style={{ marginTop: 40 }}>My applications</h2>
 
       {applications.length === 0 ? (
         <p>No applications yet</p>
       ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Request ID</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+        applications.map((a) => {
+          const req = getRequestById(a.request_id);
 
-          <tbody>
-            {applications.map((a) => (
-              <tr key={a.id}>
-                <td>{a.request_id}</td>
+          if (!req) return null;
 
-                <td>
-                  <span
-                    className={`status ${
-                      a.status === "pending"
-                        ? "status-pending"
-                        : ""
-                    }`}
-                  >
-                    {a.status}
-                  </span>
-                </td>
+          return (
+            <div
+              key={a.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                border: "1px solid #ddd",
+                borderRadius: "10px",
+                padding: "15px",
+                marginTop: "10px",
+                background: "#fff",
+              }}
+            >
+              {/* LEFT (IMAGE + INFO) */}
+              <div style={{ display: "flex", gap: 15 }}>
 
-                <td>
-                  <button
-                    className="btn-red"
-                    onClick={() => handleDelete(a.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                <img
+                  src={req.dog_image || "https://placedog.net/200"}
+                  width="100"
+                  style={{ borderRadius: 10 }}
+                />
+
+                <div>
+                  <h3>{req.dog_name}</h3>
+                  <p>{req.date}</p>
+                  <p>{req.start_time} - {req.end_time}</p>
+                  <p>{req.address}</p>
+                </div>
+
+              </div>
+
+              {/* RIGHT */}
+              <div style={{ display: "flex", gap: 10 }}>
+
+                <span className="status status-pending">
+                  {a.status}
+                </span>
+
+                <button
+                  className="btn-red"
+                  onClick={() => handleDelete(a.id)}
+                >
+                  Delete
+                </button>
+
+              </div>
+            </div>
+          );
+        })
       )}
-
     </div>
   );
 }
