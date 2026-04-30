@@ -18,6 +18,11 @@ export default function Profile() {
     try {
       const localUser = getUser();
 
+      if (!localUser) {
+        router.push("/login");
+        return;
+      }
+
       const res = await fetch(`${API_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${localUser.token}`,
@@ -26,10 +31,9 @@ export default function Profile() {
 
       const data = await res.json();
 
-      // 👉 on merge role local + backend data
       setUser({
         ...data,
-        role: localUser.role,
+        role: localUser.role, // on garde le role local
       });
 
     } catch (err) {
@@ -49,71 +53,58 @@ export default function Profile() {
 
       <h2 className="profile-title">My Profile</h2>
 
-      <div className="profile-container">
+      <div className="profile-right">
 
-        {/* LEFT */}
-        <div className="profile-left">
-          <div className="profile-avatar">👤</div>
+        <div className="profile-group">
+          <label>Name</label>
+          <input value={user.name || user.username || ""} readOnly />
+        </div>
 
-          <button className="btn-gray">
-            Change photo
+        <div className="profile-group">
+          <label>Email</label>
+          <input value={user.email || ""} readOnly />
+        </div>
+
+        <div className="profile-group">
+          <label>Phone</label>
+          <input value={user.phone || "Not provided"} readOnly />
+        </div>
+
+        <div className="profile-group">
+          <label>Role</label>
+          <input value={user.role || ""} readOnly />
+        </div>
+
+        <div className="profile-group">
+          <label>Address</label>
+          <input value={user.address || "Not provided"} readOnly />
+        </div>
+
+        {/* 🔥 affichage selon rôle */}
+        {user.role === "dogsitter" && (
+          <div className="profile-group">
+            <label>Status</label>
+            <input value="Available for jobs" readOnly />
+          </div>
+        )}
+
+        {user.role === "owner" && (
+          <div className="profile-group">
+            <label>Account type</label>
+            <input value="Dog owner" readOnly />
+          </div>
+        )}
+
+        <div className="profile-actions">
+          <button className="btn-green">
+            Edit profile
+          </button>
+
+          <button className="btn-gray" onClick={handleLogout}>
+            Logout
           </button>
         </div>
 
-        {/* RIGHT */}
-        <div className="profile-right">
-
-          <div className="profile-group">
-            <label>Name</label>
-            <input value={user.name || ""} readOnly />
-          </div>
-
-          <div className="profile-group">
-            <label>Email</label>
-            <input value={user.email || ""} readOnly />
-          </div>
-
-          <div className="profile-group">
-            <label>Phone</label>
-            <input value={user.phone || ""} readOnly />
-          </div>
-
-          <div className="profile-group">
-            <label>Role</label>
-            <input value={user.role || ""} readOnly />
-          </div>
-
-          <div className="profile-group form-full">
-            <label>Address</label>
-            <input value={user.address || ""} readOnly />
-          </div>
-
-          {/* 🔥 BONUS : affichage selon rôle */}
-          {user.role === "dogsitter" && (
-            <div className="profile-group form-full">
-              <label>Status</label>
-              <input value="Available for jobs" readOnly />
-            </div>
-          )}
-
-          {user.role === "owner" && (
-            <div className="profile-group form-full">
-              <label>Account type</label>
-              <input value="Dog owner" readOnly />
-            </div>
-          )}
-
-          <div className="profile-actions">
-            <button className="btn-green">
-              Edit profile
-            </button>
-
-            <button className="btn-gray" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-
-        </div>
       </div>
 
     </div>
