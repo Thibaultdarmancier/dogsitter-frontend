@@ -32,7 +32,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
 //
 
 export function getRequests() {
-  return apiFetch("/request");
+  return apiFetch("/request/my-requests");
 }
 
 export function getOpenRequests() {

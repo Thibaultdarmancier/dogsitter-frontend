@@ -38,11 +38,7 @@ export default function Login() {
         id: profile.id,
         name: profile.name,
         email: profile.email,
-<<<<<<< HEAD
-        role: profile.role,
-=======
         role: profile.role, // ✅ FIX IMPORTANT
->>>>>>> de5ac1ed1457ec1ab4eda9803c03cbd134b85979
         token: res.access_token,
       };
 
