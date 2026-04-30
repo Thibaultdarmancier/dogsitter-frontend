@@ -130,19 +130,23 @@ const handleConfirm = async () => {
           }
         />
 
-        <input
-          placeholder="Start time"
-          onChange={(e) =>
-            setForm({ ...form, start_time: e.target.value })
-          }
-        />
+         {/* START TIME */}
+          <input
+            type="time"
+            value={form.start_time}
+            onChange={(e) =>
+              setForm({ ...form, start_time: e.target.value })
+            }
+          />
 
-        <input
-          placeholder="End time"
-          onChange={(e) =>
-            setForm({ ...form, end_time: e.target.value })
-          }
-        />
+          {/* END TIME */}
+          <input
+            type="time"
+            value={form.end_time}
+            onChange={(e) =>
+              setForm({ ...form, end_time: e.target.value })
+            }
+          />
 
         <input
           placeholder="Address"

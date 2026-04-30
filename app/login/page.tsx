@@ -16,7 +16,6 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      // 🔥 LOGIN
       const res = await loginUser(form);
       console.log("LOGIN RESPONSE =", res);
 
@@ -25,7 +24,7 @@ export default function Login() {
         return;
       }
 
-      // 🔥 GET PROFILE (IMPORTANT)
+      // 🔥 récupérer profil complet (avec role)
       const profileRes = await fetch(`${API_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${res.access_token}`,
@@ -33,12 +32,17 @@ export default function Login() {
       });
 
       const profile = await profileRes.json();
+      console.log("PROFILE =", profile);
 
       const user = {
         id: profile.id,
         name: profile.name,
         email: profile.email,
+<<<<<<< HEAD
         role: profile.role,
+=======
+        role: profile.role, // ✅ FIX IMPORTANT
+>>>>>>> de5ac1ed1457ec1ab4eda9803c03cbd134b85979
         token: res.access_token,
       };
 
@@ -62,7 +66,6 @@ export default function Login() {
       <div className="form-card">
         <h2>Login</h2>
 
-        {/* EMAIL */}
         <div className="form-group">
           <label>Email</label>
           <input
@@ -70,7 +73,6 @@ export default function Login() {
           />
         </div>
 
-        {/* PASSWORD */}
         <div className="form-group">
           <label>Password</label>
           <input
