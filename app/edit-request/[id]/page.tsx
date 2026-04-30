@@ -5,8 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { getRequest, updateRequest } from "@/lib/api";
 
 export default function EditRequest() {
-  const { id } = useParams();
+  const params = useParams();
   const router = useRouter();
+
+  const requestId = Number(params?.id);
 
   const [form, setForm] = useState<any>({
     dog_name: "",
@@ -18,29 +20,19 @@ export default function EditRequest() {
     start_time: "",
     end_time: "",
     service_type: "",
-    status: "", // 👈 affiché mais pas modifiable
+    status: "",
   });
 
   const [preview, setPreview] = useState<string | null>(null);
 
-  // 🔥 LOAD DATA
   useEffect(() => {
-  if (!id) return;
+    if (!requestId || isNaN(requestId)) return;
 
-  const numericId = Number(id);
-
-  if (isNaN(numericId)) return;
-
-  getRequest(numericId).then((data) => {
-    console.log("EDIT REQUEST DATA =", data);
-
-    if (data?.id) {
+    getRequest(requestId).then((data) => {
       setForm(data);
-    }
-  });
-}, [id]);
+    });
+  }, [requestId]);
 
-  // 📷 IMAGE
   const handleImage = (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -57,181 +49,80 @@ export default function EditRequest() {
     reader.readAsDataURL(file);
   };
 
-  // 💾 SAVE
   const handleSave = async () => {
-<<<<<<< HEAD
-  try {
-    const numericId = Number(id);
-=======
-    try {
-      await updateRequest(Number(id), {
-        dog_name: form.dog_name,
-        dog_age: form.dog_age,
-        dog_race: form.dog_race,
-        dog_image: form.dog_image,
-        address: form.address,
-        date: form.date,
-        start_time: form.start_time,
-        end_time: form.end_time,
-        service_type: form.service_type,
-        // ❌ PAS DE status ici
-      });
->>>>>>> 0920ee8bf4ba6a3be982a9b836444c7ba35d4c14
-
-    if (isNaN(numericId)) {
+    if (!requestId || isNaN(requestId)) {
       alert("Invalid request id");
       return;
     }
 
-    await updateRequest(numericId, form);
-
+    await updateRequest(requestId, form);
     alert("Request updated!");
     router.push("/my-requests");
-
-  } catch (err) {
-    console.error(err);
-    alert("Error updating request");
-  }
-};
+  };
 
   return (
     <div className="form-wrapper">
       <div className="form-card">
+        <h2>Edit request</h2>
 
-        <h2 className="form-title">Edit request</h2>
+        <input type="file" onChange={handleImage} />
 
-        {/* IMAGE */}
-        <div className="form-group form-full">
-          <label className="form-label">Dog photo</label>
+        {(preview || form.dog_image) && (
+          <img src={preview || form.dog_image} className="preview-img" />
+        )}
 
-          <input type="file" onChange={handleImage} />
+        <input
+          value={form.dog_name}
+          onChange={(e) => setForm({ ...form, dog_name: e.target.value })}
+        />
 
-          {(preview || form.dog_image) && (
-            <img
-              src={preview || form.dog_image}
-              className="preview-img"
-            />
-          )}
-        </div>
+        <input
+          value={form.dog_age}
+          onChange={(e) => setForm({ ...form, dog_age: e.target.value })}
+        />
 
-        <div className="form-grid">
+        <input
+          value={form.dog_race}
+          onChange={(e) => setForm({ ...form, dog_race: e.target.value })}
+        />
 
-          {/* DOG NAME */}
-          <div className="form-group form-full">
-            <label className="form-label">Dog name</label>
-            <input
-              value={form.dog_name || ""}
-              onChange={(e) =>
-                setForm({ ...form, dog_name: e.target.value })
-              }
-            />
-          </div>
+        <input
+          value={form.date}
+          onChange={(e) => setForm({ ...form, date: e.target.value })}
+        />
 
-          {/* DOG AGE */}
-          <div className="form-group">
-            <label className="form-label">Dog age</label>
-            <input
-              value={form.dog_age || ""}
-              onChange={(e) =>
-                setForm({ ...form, dog_age: e.target.value })
-              }
-            />
-          </div>
+        <input
+          value={form.start_time}
+          onChange={(e) => setForm({ ...form, start_time: e.target.value })}
+        />
 
-          {/* DOG RACE */}
-          <div className="form-group">
-            <label className="form-label">Dog race</label>
-            <input
-              value={form.dog_race || ""}
-              onChange={(e) =>
-                setForm({ ...form, dog_race: e.target.value })
-              }
-            />
-          </div>
+        <input
+          value={form.end_time}
+          onChange={(e) => setForm({ ...form, end_time: e.target.value })}
+        />
 
-          {/* DATE */}
-          <div className="form-group form-full">
-            <label className="form-label">Walking date</label>
-            <input
-              type="date"
-              value={form.date || ""}
-              onChange={(e) =>
-                setForm({ ...form, date: e.target.value })
-              }
-            />
-          </div>
+        <input
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+        />
 
-          {/* START TIME */}
-          <div className="form-group">
-            <label className="form-label">Start time</label>
-            <input
-              type="time"
-              value={form.start_time || ""}
-              onChange={(e) =>
-                setForm({ ...form, start_time: e.target.value })
-              }
-            />
-          </div>
+        <input
+          value={form.service_type}
+          onChange={(e) => setForm({ ...form, service_type: e.target.value })}
+        />
 
-          {/* END TIME */}
-          <div className="form-group">
-            <label className="form-label">End time</label>
-            <input
-              type="time"
-              value={form.end_time || ""}
-              onChange={(e) =>
-                setForm({ ...form, end_time: e.target.value })
-              }
-            />
-          </div>
+        <select
+          value={form.status}
+          onChange={(e) => setForm({ ...form, status: e.target.value })}
+        >
+          <option value="open">Open</option>
+          <option value="assigned">Assigned</option>
+          <option value="completed">Completed</option>
+        </select>
 
-          {/* ADDRESS */}
-          <div className="form-group form-full">
-            <label className="form-label">Location</label>
-            <input
-              value={form.address || ""}
-              onChange={(e) =>
-                setForm({ ...form, address: e.target.value })
-              }
-            />
-          </div>
-
-          {/* SERVICE */}
-          <div className="form-group form-full">
-            <label className="form-label">Service Type</label>
-            <input
-              value={form.service_type || ""}
-              onChange={(e) =>
-                setForm({ ...form, service_type: e.target.value })
-              }
-            />
-          </div>
-
-          {/* STATUS (READ ONLY) */}
-          <div className="form-group form-full">
-            <label className="form-label">Status</label>
-            <input
-              value={form.status || ""}
-              readOnly
-              style={{ background: "#eee" }}
-            />
-          </div>
-
-        </div>
-
-        <div style={{ marginTop: "15px" }}>
-          <button className="btn-green" onClick={handleSave}>
-            Save changes
-          </button>
-
-          <button
-            className="btn-gray"
-            onClick={() => router.push("/my-requests")}
-          >
-            Cancel
-          </button>
-        </div>
-
+        <button className="btn-green" onClick={handleSave}>
+          Save
+        </button>
       </div>
     </div>
   );

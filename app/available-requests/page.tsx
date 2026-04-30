@@ -11,7 +11,11 @@ export default function OpenRequestsPage() {
 
   const loadRequests = async () => {
     const data = await getOpenRequests();
-    setRequests(data);
+    if (Array.isArray(data)) {
+      setRequests(data);
+    } else {
+      setRequests([]);
+    }
   };
 
   const applyNow = async (requestId: number) => {

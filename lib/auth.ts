@@ -1,19 +1,7 @@
-const API_URL = "http://localhost:3000";
-
-export async function loginUser(data: any) {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  return res.json();
-}
+const API_URL = "http://localhost:3000/auth";
 
 export async function registerUser(data: any) {
-  const res = await fetch(`${API_URL}/auth/regist`, {
+  const res = await fetch(`${API_URL}/regist`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -24,13 +12,34 @@ export async function registerUser(data: any) {
   return res.json();
 }
 
-// ===== LOCAL STORAGE =====
+export async function loginUser(data: any) {
+  const res = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  return res.json();
+}
+
 export function setUser(user: any) {
+  if (typeof window === "undefined") return;
   localStorage.setItem("user", JSON.stringify(user));
 }
 
 export function getUser() {
-  return JSON.parse(localStorage.getItem("user") || "null");
+  if (typeof window === "undefined") return null;
+
+  const raw = localStorage.getItem("user");
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 export function getToken() {
@@ -39,5 +48,6 @@ export function getToken() {
 }
 
 export function logout() {
+  if (typeof window === "undefined") return;
   localStorage.removeItem("user");
 }
