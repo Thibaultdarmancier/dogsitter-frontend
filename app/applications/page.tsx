@@ -9,7 +9,6 @@ const API_URL = "http://localhost:3000";
 export default function Applications() {
   const [requests, setRequests] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
-  const [selected, setSelected] = useState<any | null>(null);
 
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -29,26 +28,21 @@ export default function Applications() {
   // ===== LOAD =====
   useEffect(() => {
     if (user) {
-      loadRequests();
-      loadApplications();
+      loadAll();
     }
   }, [user]);
 
-  const loadRequests = async () => {
-    const res = await fetch(`${API_URL}/request`);
-    const data = await res.json();
-    setRequests(Array.isArray(data) ? data : []);
-  };
+  const loadAll = async () => {
+    const [reqRes, appRes] = await Promise.all([
+      fetch(`${API_URL}/request`),
+      fetch(`${API_URL}/apply`),
+    ]);
 
-  const loadApplications = async () => {
-    const res = await fetch(`${API_URL}/apply`);
-    const data = await res.json();
+    const reqData = await reqRes.json();
+    const appData = await appRes.json();
 
-    const myApps = data.filter(
-      (a: any) => a.dogsitter_id === user.id
-    );
-
-    setApplications(myApps);
+    setRequests(Array.isArray(reqData) ? reqData : []);
+    setApplications(Array.isArray(appData) ? appData : []);
   };
 
   // ===== APPLY =====
@@ -65,7 +59,7 @@ export default function Applications() {
       }),
     });
 
-    loadApplications();
+    loadAll(); // 🔥 refresh complet
   };
 
   // ===== DELETE =====
@@ -74,13 +68,19 @@ export default function Applications() {
       method: "DELETE",
     });
 
-    setApplications((prev) => prev.filter((a) => a.id !== id));
+    loadAll(); // 🔥 refresh complet
   };
 
   // ===== HELPERS =====
-  const isApplied = (requestId: number) => {
+
+  // ❗ IMPORTANT : check si ANY apply existe
+  const hasAnyApplication = (requestId: number) => {
     return applications.some((a) => a.request_id === requestId);
   };
+
+  const myApplications = applications.filter(
+    (a) => a.dogsitter_id === user?.id
+  );
 
   const getRequestById = (id: number) => {
     return requests.find((r) => r.id === id);
@@ -94,49 +94,45 @@ export default function Applications() {
       {/* ===== AVAILABLE ===== */}
       <h2>Available requests</h2>
 
-      {requests.map((r) => (
-        <div key={r.id} className="card" style={{ marginTop: 10 }}>
-          <div style={{ display: "flex", gap: 15 }}>
+      {requests
+        .filter((r) => !hasAnyApplication(r.id)) // 🔥 KEY FIX
+        .map((r) => (
+          <div key={r.id} className="card" style={{ marginTop: 10 }}>
+            <div style={{ display: "flex", gap: 15 }}>
 
-            <img
-              src={r.dog_image || "https://placedog.net/200"}
-              width="100"
-              style={{ borderRadius: 10 }}
-            />
+              <img
+                src={r.dog_image || "https://placedog.net/200"}
+                width="100"
+                style={{ borderRadius: 10 }}
+              />
 
-            <div>
-              <h3>{r.dog_name}</h3>
-              <p>{r.date}</p>
-              <p>{r.start_time} - {r.end_time}</p>
-              <p>{r.address}</p>
+              <div>
+                <h3>{r.dog_name}</h3>
+                <p>{r.date}</p>
+                <p>{r.start_time} - {r.end_time}</p>
+                <p>{r.address}</p>
+              </div>
+
             </div>
 
+            <button
+              className="btn-green"
+              onClick={() => handleApply(r.id)}
+              style={{ marginTop: 10 }}
+            >
+              Apply
+            </button>
           </div>
-
-          <div style={{ marginTop: 10 }}>
-            {isApplied(r.id) ? (
-              <span className="status status-pending">Applied</span>
-            ) : (
-              <button
-                className="btn-green"
-                onClick={() => handleApply(r.id)}
-              >
-                Apply
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+        ))}
 
       {/* ===== MY APPLICATIONS ===== */}
       <h2 style={{ marginTop: 40 }}>My applications</h2>
 
-      {applications.length === 0 ? (
+      {myApplications.length === 0 ? (
         <p>No applications yet</p>
       ) : (
-        applications.map((a) => {
+        myApplications.map((a) => {
           const req = getRequestById(a.request_id);
-
           if (!req) return null;
 
           return (
@@ -153,7 +149,6 @@ export default function Applications() {
                 background: "#fff",
               }}
             >
-              {/* LEFT (IMAGE + INFO) */}
               <div style={{ display: "flex", gap: 15 }}>
 
                 <img
@@ -171,9 +166,7 @@ export default function Applications() {
 
               </div>
 
-              {/* RIGHT */}
               <div style={{ display: "flex", gap: 10 }}>
-
                 <span className="status status-pending">
                   {a.status}
                 </span>
@@ -184,7 +177,6 @@ export default function Applications() {
                 >
                   Delete
                 </button>
-
               </div>
             </div>
           );
