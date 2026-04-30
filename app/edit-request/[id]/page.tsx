@@ -9,15 +9,16 @@ export default function EditRequest() {
   const router = useRouter();
 
   const [form, setForm] = useState<any>({
-    dog_id: "",
-    user_id: "",
+    dog_name: "",
+    dog_age: "",
+    dog_race: "",
+    dog_image: "",
     address: "",
     date: "",
     start_time: "",
     end_time: "",
     service_type: "",
     status: "",
-    assigned_dogsitter_id: null,
   });
 
   const [preview, setPreview] = useState<string | null>(null);
@@ -29,28 +30,35 @@ export default function EditRequest() {
     });
   }, [id]);
 
-  // 📷 IMAGE
+  // 📷 IMAGE UPLOAD
   const handleImage = (e: any) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     setPreview(URL.createObjectURL(file));
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm((prev: any) => ({
+        ...prev,
+        dog_image: reader.result,
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
   // 💾 SAVE
   const handleSave = async () => {
-    await updateRequest(Number(id), {
-      dog_id: Number(form.dog_id),
-      user_id: Number(form.user_id),
-      address: form.address,
-      date: form.date,
-      start_time: form.start_time,
-      end_time: form.end_time,
-      service_type: form.service_type,
-      status: form.status,
-      assigned_dogsitter_id: form.assigned_dogsitter_id,
-    });
+    try {
+      await updateRequest(Number(id), form);
 
-    alert("Request updated!");
-    router.push("/my-requests");
+      alert("Request updated!");
+      router.push("/my-requests");
+
+    } catch (err) {
+      console.error(err);
+      alert("Error updating request");
+    }
   };
 
   return (
@@ -61,23 +69,55 @@ export default function EditRequest() {
 
         {/* IMAGE */}
         <div className="form-group form-full">
-          <label className="form-label">Select photo of the dog</label>
+          <label className="form-label">Dog photo</label>
+
           <input type="file" onChange={handleImage} />
-          {preview && <img src={preview} className="preview-img" />}
+
+          {/* 🔥 IMAGE DISPLAY */}
+          {(preview || form.dog_image) && (
+            <img
+              src={preview || form.dog_image}
+              className="preview-img"
+            />
+          )}
         </div>
 
         <div className="form-grid">
 
+          {/* DOG NAME */}
           <div className="form-group form-full">
-            <label className="form-label">Dog ID</label>
+            <label className="form-label">Dog name</label>
             <input
-              value={form.dog_id}
+              value={form.dog_name}
               onChange={(e) =>
-                setForm({ ...form, dog_id: e.target.value })
+                setForm({ ...form, dog_name: e.target.value })
               }
             />
           </div>
 
+          {/* DOG AGE */}
+          <div className="form-group">
+            <label className="form-label">Dog age</label>
+            <input
+              value={form.dog_age}
+              onChange={(e) =>
+                setForm({ ...form, dog_age: e.target.value })
+              }
+            />
+          </div>
+
+          {/* DOG RACE */}
+          <div className="form-group">
+            <label className="form-label">Dog race</label>
+            <input
+              value={form.dog_race}
+              onChange={(e) =>
+                setForm({ ...form, dog_race: e.target.value })
+              }
+            />
+          </div>
+
+          {/* DATE */}
           <div className="form-group form-full">
             <label className="form-label">Walking date</label>
             <input
@@ -88,6 +128,7 @@ export default function EditRequest() {
             />
           </div>
 
+          {/* START */}
           <div className="form-group">
             <label className="form-label">Start time</label>
             <input
@@ -98,6 +139,7 @@ export default function EditRequest() {
             />
           </div>
 
+          {/* END */}
           <div className="form-group">
             <label className="form-label">End time</label>
             <input
@@ -108,6 +150,7 @@ export default function EditRequest() {
             />
           </div>
 
+          {/* ADDRESS */}
           <div className="form-group form-full">
             <label className="form-label">Location</label>
             <input
@@ -118,6 +161,7 @@ export default function EditRequest() {
             />
           </div>
 
+          {/* SERVICE */}
           <div className="form-group form-full">
             <label className="form-label">Service Type</label>
             <input
@@ -128,7 +172,7 @@ export default function EditRequest() {
             />
           </div>
 
-          {/* ✅ STATUS MODIFIABLE */}
+          {/* STATUS */}
           <div className="form-group form-full">
             <label className="form-label">Status</label>
             <select

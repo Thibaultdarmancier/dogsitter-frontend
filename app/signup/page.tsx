@@ -12,7 +12,6 @@ export default function Signup() {
     phone: "",
     email: "",
     password: "",
-    role: "owner",
   });
 
   const router = useRouter();
@@ -72,17 +71,6 @@ export default function Signup() {
           placeholder="Password"
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
-
-        {/* ROLE */}
-        <div className="form-group">
-          <label>Register as</label>
-          <select
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          >
-            <option value="owner">User</option>
-            <option value="dogsitter">Dogsitter</option>
-          </select>
-        </div>
 
         <button className="btn-green" onClick={handleSignup}>
           Sign up
